@@ -73,8 +73,7 @@ public class SystemListener implements Callable
      */
     @SuppressWarnings("null")
     @Override
-    public Object call() throws Exception
-    {
+    public Object call() {
         System.out.println("System listener started");
         while (true)
         {

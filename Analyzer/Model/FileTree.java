@@ -398,7 +398,7 @@ public class FileTree extends Analyzer
      * Method used to delete a file from the system
      * @param file The File to delete
      */
-    private static void delete(File file) throws IOException
+    public static void delete(File file) throws IOException
     {
         if (file.isDirectory())
         {

@@ -157,7 +157,7 @@ public class Test
         analyzer.buildDefaultFileTree("tests");
         DefaultMutableTreeNode root = analyzer.getRoot();
         FileNode fileRoot = analyzer.getFileNode(root);
-        System.out.println("FileNode == fileRoot ? -> " + (fileRoot == (FileNode) root.getUserObject()));
+        System.out.println("FileNode == fileRoot ? -> " + (fileRoot == root.getUserObject()));
         System.out.println("Tree weight (33) -> " + analyzer.getWeight(root));
     }
 

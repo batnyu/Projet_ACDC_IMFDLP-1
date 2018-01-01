@@ -49,8 +49,7 @@ public class DuplicatesFinder implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
-    {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         if (!Files.isReadable(dir))
         {
             System.out.println("Erreur d'accès au dossier: " + dir.toString());
@@ -62,8 +61,7 @@ public class DuplicatesFinder implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-    {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
         return FileVisitResult.CONTINUE;
     }
 
@@ -71,8 +69,7 @@ public class DuplicatesFinder implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException
-    {
+    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
         if (Files.isReadable(path))
         {
             if (filter.accept(path.toFile()))
@@ -111,9 +108,9 @@ public class DuplicatesFinder implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException
-    {
+    public FileVisitResult visitFileFailed(Path file, IOException exc) {
         System.out.println("File reading failed for: " + exc.getMessage());
+        ErrorManager.throwError(exc);
         return FileVisitResult.CONTINUE;
     }
 
@@ -121,8 +118,7 @@ public class DuplicatesFinder implements FileVisitor<Path>, Callable
      * Method launching the research
      */
     @Override
-    public Map<String, List<File>> call() throws Exception
-    {
+    public Map<String, List<File>> call() {
         try
         {
             Files.walkFileTree(rootPath, this);

@@ -71,8 +71,7 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
-    {
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
         if (Files.isReadable(dir))
         {
 
@@ -111,8 +110,7 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-    {
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
         if (!thread)
         {
             currentNode = (DefaultMutableTreeNode) currentNode.getParent();
@@ -124,15 +122,14 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException
-    {
+    public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
         if (Files.isReadable(path))
         {
 
             if (attrs.isRegularFile())
             {
                 File file = new File(path.toString());
-                boolean isValid = filter.isActive() ? filter.accept(file) : true;
+                boolean isValid = !filter.isActive() || filter.accept(file);
                 if (isValid)
                 {
                     DefaultMutableTreeNode node;
@@ -164,9 +161,9 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable
      * Inherited from FileVisitor
      */
     @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException
-    {
+    public FileVisitResult visitFileFailed(Path file, IOException exc) {
         System.out.println("File reading failed for: " + exc.getMessage());
+        ErrorManager.throwError(exc);
         return FileVisitResult.CONTINUE;
     }
 
