@@ -24,10 +24,12 @@ public class ActionsPanel extends ZContainer {
 
     String currentSelectedFilePath;
     OptionsPanel optionsPanel;
+    ZContainer container;
 
     public ActionsPanel(Dimension dim, ZContainer container) {
         super(dim);
         this.addObserver((Observer) container);
+        this.container = container;
         fc = new JFileChooser();
         initPanel();
     }
@@ -69,7 +71,7 @@ public class ActionsPanel extends ZContainer {
             }
         });
 
-        optionsPanel = new OptionsPanel(null);
+        optionsPanel = new OptionsPanel(null, this.container);
 
         JButton editOptions = new JButton("Edit options");
         editOptions.addActionListener(new ActionListener() {
@@ -90,20 +92,22 @@ public class ActionsPanel extends ZContainer {
             }
         });
 
-        JButton deleteSelected = new JButton("Delete selected");
-        deleteSelected.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //Anouncing data change
-                setChanged();
-                notifyObservers(DELETING_SELECTED_FILES);
-            }
-        });
-
         this.panel.setLayout(new FlowLayout(FlowLayout.LEFT));
         this.panel.add(selectDirectory);
         this.panel.add(editOptions);
-        this.panel.add(deleteSelected);
 
+        if (this.container instanceof DuplicatesPanel) {
+            JButton deleteSelected = new JButton("Delete selected");
+            deleteSelected.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    //Anouncing data change
+                    setChanged();
+                    notifyObservers(DELETING_SELECTED_FILES);
+                }
+            });
+
+            this.panel.add(deleteSelected);
+        }
     }
 }

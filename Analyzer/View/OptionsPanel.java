@@ -32,8 +32,11 @@ public class OptionsPanel extends ZContainer {
     FilterInfo weightInfo;
     FilterInfo dateInfo;
 
-    public OptionsPanel(Dimension dim) {
+    ZContainer container;
+
+    public OptionsPanel(Dimension dim,ZContainer container) {
         super(dim);
+        this.container = container;
         this.panel.setBackground(null);
         initPanel();
     }
