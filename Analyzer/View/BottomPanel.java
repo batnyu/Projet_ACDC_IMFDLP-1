@@ -11,6 +11,8 @@ public class BottomPanel extends ZContainer implements ErrorHandler {
     Dimension size;
     ArrayList<String> errors;
 
+    JLabel errorsLabel;
+
     public BottomPanel(Dimension size) {
         super(size);
         this.size = size;
@@ -19,18 +21,18 @@ public class BottomPanel extends ZContainer implements ErrorHandler {
     }
 
     protected void initPanel() {
-        JLabel errors = new JLabel("Errors : " + this.errors.size());
-        errors.setHorizontalAlignment(JLabel.LEFT);
-        errors.setFont(arialPlain);
+        errorsLabel = new JLabel("Errors : " + this.errors.size());
+        errorsLabel.setHorizontalAlignment(JLabel.LEFT);
+        errorsLabel.setFont(arialPlain);
         this.panel.setBackground(Color.LIGHT_GRAY);
         this.panel.setPreferredSize(new Dimension(((int) this.size.getWidth()), 27));
-        this.panel.add(errors);
+        this.panel.add(errorsLabel);
     }
 
     @Override
     public void capturedError(Exception exception) {
         System.out.println("Message reçu:" + exception.getMessage());
         this.errors.add(exception.getMessage());
-        this.panel.revalidate();
+        errorsLabel.setText("Errors : " + this.errors.size());
     }
 }
