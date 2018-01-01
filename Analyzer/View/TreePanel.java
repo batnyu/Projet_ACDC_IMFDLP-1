@@ -1,10 +1,6 @@
 package Analyzer.View;
 
-import Analyzer.Model.FileSystemModel;
-import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
-import Analyzer.View.JTreeTable.JTreeTable;
-import Analyzer.View.JTreeTable.TreeTableModel;
 
 import javax.swing.*;
 import java.awt.*;

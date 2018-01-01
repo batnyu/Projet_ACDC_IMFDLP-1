@@ -5,9 +5,6 @@ import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -21,24 +18,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 public class DuplicatesPanel extends ZContainer {
 
+    Dimension dim;
+
     Analyzer analyzer;
-    private boolean hash = false;
-    private boolean recordInCache = false;
-    private int maxDepth = Integer.MAX_VALUE;
-    private String path = "C:\\Users\\Baptiste\\Desktop\\Projet_ACDC_IMFDLP-master Baptiste Vrignaud";
-    private boolean thread = false;
     Filter filter;
+    private Map<String, List<File>> duplicates;
 
     final JFileChooser fc = new JFileChooser();
-
-    JLabel label = new JLabel("Choose a directory");
+    JLabel mainLabel;
     JTable jTable;
     JScrollPane jScrollPane;
+    LoadingPanel loadingPanel;
 
-    ArrayList<FileIndex> filesToDelete = new ArrayList<FileIndex>();
+    ArrayList<FileIndex> filesToDelete;
 
     class FileIndex {
 
@@ -62,11 +58,16 @@ public class DuplicatesPanel extends ZContainer {
 
     public DuplicatesPanel(Dimension dim, Analyzer analyzer) {
         super(dim);
+        this.dim = dim;
         this.analyzer = analyzer;
+        this.filter = new Filter();
         initPanel();
     }
 
     public void initPanel() {
+
+        filesToDelete = new ArrayList<FileIndex>();
+
         fc.setCurrentDirectory(new File
                 (System.getProperty("user.home") + System.getProperty("file.separator")));
 
@@ -88,7 +89,7 @@ public class DuplicatesPanel extends ZContainer {
                     container.add(new TreePanel(size).getPanel(), BorderLayout.CENTER);
                     container.revalidate();*/
 
-                    displayDuplicates(file.getAbsolutePath());
+                    getDuplicates(file.getAbsolutePath());
                 } else {
                     System.out.println("Open command cancelled by user.");
                 }
@@ -143,6 +144,11 @@ public class DuplicatesPanel extends ZContainer {
                                 break;
                         }
                     }
+
+                    //Reset filter when no fields completed
+                    if(optionsPanel.getPattern().equals("") && optionsPanel.getWeight() == 0 && optionsPanel.getDate() == null){
+                        filter = new Filter();
+                    }
                 }
             }
         });
@@ -195,23 +201,59 @@ public class DuplicatesPanel extends ZContainer {
         jPanel.add(selectDirectory);
         jPanel.add(editOptions);
         jPanel.add(deleteSelected);
-
-
         this.panel.add(jPanel, BorderLayout.NORTH);
 
-        label.setVerticalAlignment(JLabel.NORTH);
-        this.panel.add(label, BorderLayout.CENTER);
+        mainLabel = new JLabel("Choose a directory");
+        mainLabel.setVerticalAlignment(JLabel.CENTER);
+        mainLabel.setHorizontalAlignment(JLabel.CENTER);
+        this.panel.add(mainLabel, BorderLayout.CENTER);
 
+    }
+
+    public void getDuplicates(String path) {
+
+        //Reset view
+        if (jScrollPane != null) {
+            this.panel.remove(jScrollPane);
+        }
+        if(mainLabel != null) {
+            this.panel.remove(mainLabel);
+        }
+
+        loadingPanel = new LoadingPanel(this.dim,"Searching for duplicates in " + path);
+        this.panel.add(loadingPanel.getPanel(),BorderLayout.CENTER);
+        this.panel.revalidate();
+
+        SwingWorker<Map<String, List<File>>, Void> worker = new SwingWorker<Map<String, List<File>>, Void>() {
+            @Override
+            public Map<String, List<File>> doInBackground() {
+
+                Map<String, List<File>> dup = analyzer.getDuplicates(path, filter);
+                return dup;
+            }
+            @Override
+            public void done() {
+                try {
+                    duplicates = get();
+
+                    displayDuplicates(path);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                } catch (ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };
+
+        // Call the SwingWorker from within the Swing thread
+        worker.execute();
     }
 
     public void displayDuplicates(String path) {
 
-        this.panel.remove(label);
-        if (jScrollPane != null) {
-            this.panel.remove(jScrollPane);
-        }
-
-        Map<String, List<File>> dup = analyzer.getDuplicates(path, this.filter);
+        this.panel.remove(this.loadingPanel.getPanel());
+        this.panel.revalidate();
+        this.panel.repaint();
 
         Object[] columnNames = {"Selection", "Hash", "Path"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
@@ -229,36 +271,38 @@ public class DuplicatesPanel extends ZContainer {
         };
 
 
-        if (dup.isEmpty()) {
+        if (duplicates.isEmpty()) {
             System.out.println("No duplicates are contained in \"" + path + "\".");
+            mainLabel.setText("No duplicates are contained in \"" + path + "\".");
+            this.panel.add(mainLabel, BorderLayout.CENTER);
         } else {
             System.out.println("Duplicates contained in \"" + path + "\" are: ");
-        }
-        for (String vHash : dup.keySet()) {
-            for (File file : dup.get(vHash)) {
-                System.out.println(vHash + " -> " + file.getAbsolutePath());
-                Vector row = new Vector();
-                //row.add(new Boolean(false));
-                row.add(false);
-                row.add(vHash);
-                row.add(file.getAbsolutePath());
+            this.panel.remove(mainLabel);
+            for (String vHash : duplicates.keySet()) {
+                for (File file : duplicates.get(vHash)) {
+                    //System.out.println(vHash + " -> " + file.getAbsolutePath());
+                    Vector row = new Vector();
+                    //row.add(new Boolean(false));
+                    row.add(false);
+                    row.add(vHash);
+                    row.add(file.getAbsolutePath());
 
-                model.addRow(row);
+                    model.addRow(row);
+                }
             }
-        }
 
-        jTable = new JTable(model) {
-            @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row,
-                                             int column) {
-                Component component = super.prepareRenderer(renderer, row, column);
-                // Set auto width
-                int rendererWidth = component.getPreferredSize().width;
-                TableColumn tableColumn = getColumnModel().getColumn(column);
-                tableColumn.setPreferredWidth(Math.max(rendererWidth +
-                                getIntercellSpacing().width,
-                        tableColumn.getPreferredWidth()));
-                // Set backgrounds color
+            jTable = new JTable(model) {
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row,
+                                                 int column) {
+                    Component component = super.prepareRenderer(renderer, row, column);
+                    // Set auto width
+                    int rendererWidth = component.getPreferredSize().width;
+                    TableColumn tableColumn = getColumnModel().getColumn(column);
+                    tableColumn.setPreferredWidth(Math.max(rendererWidth +
+                                    getIntercellSpacing().width,
+                            tableColumn.getPreferredWidth()));
+                    // Set backgrounds color
 /*
                 currentHash = (String)getValueAt(row, 1);
                 System.out.println("currentHash = " + currentHash);
@@ -270,13 +314,15 @@ public class DuplicatesPanel extends ZContainer {
                     previousHash = currentHash;
                 }*/
 
-                return component;
-            }
+                    return component;
+                }
 
-        };
+            };
 
-        jScrollPane = new JScrollPane(jTable);
-        this.panel.add(jScrollPane, BorderLayout.CENTER);
+            jScrollPane = new JScrollPane(jTable);
+            this.panel.add(jScrollPane, BorderLayout.CENTER);
+        }
+
         this.panel.revalidate();
     }
 
