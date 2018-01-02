@@ -36,19 +36,23 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         }
     }
 
-    Dimension dim;
+    private Dimension dim;
 
-    Analyzer analyzer;
-    Filter filter;
+    private Analyzer analyzer;
+    private Filter filter;
     private Map<String, List<File>> duplicates;
 
     final JFileChooser fc = new JFileChooser();
-    JLabel mainLabel;
-    JTable jTable;
-    JScrollPane jScrollPane;
-    LoadingPanel loadingPanel;
+    private JLabel mainLabel;
+    private JTable jTable;
+    private JScrollPane jScrollPane;
+    private LoadingPanel loadingPanel;
 
-    ArrayList<FileIndex> filesToDelete;
+    private ArrayList<FileIndex> filesToDelete;
+
+    private String previousHash;
+    private Color currentColor;
+    private final Random random = new Random(2);
 
     public DuplicatesPanel(Dimension dim, Analyzer analyzer) {
         super(dim);
@@ -56,6 +60,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         this.analyzer = analyzer;
         this.filter = new Filter();
         this.filesToDelete = new ArrayList<FileIndex>();
+        this.currentColor = getNext();
         initPanel();
     }
 
@@ -257,17 +262,18 @@ public class DuplicatesPanel extends ZContainer implements Observer {
                     tableColumn.setPreferredWidth(Math.max(rendererWidth +
                                     getIntercellSpacing().width,
                             tableColumn.getPreferredWidth()));
-                    // Set backgrounds color
-/*
-                currentHash = (String)getValueAt(row, 1);
-                System.out.println("currentHash = " + currentHash);
-                component.setBackground(Color.white);
 
-                if (previousHash.equals(currentHash)) {
-                    component.setBackground(Color.lightGray);
-                } else {
-                    previousHash = currentHash;
-                }*/
+                    // Set backgrounds color
+                    String currentHash = (String)getValueAt(row,1);
+                    if(row == 0 && column == 0){
+                        previousHash = (String)getValueAt(row,1);
+                    } else if(previousHash != currentHash){
+                        currentColor = getNext();
+                        previousHash = currentHash;
+
+                    }
+
+                    component.setBackground(currentColor);
 
                     return component;
                 }
@@ -279,6 +285,16 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         }
 
         this.panel.revalidate();
+    }
+
+    public Color getNext() {
+
+        int[] colorInt = new int[3];
+        colorInt[0] = random.nextInt(128) + 127;
+        colorInt[1] = random.nextInt(128) + 127;
+        colorInt[2] = random.nextInt(128) + 127;
+
+        return new Color(colorInt[0],colorInt[1],colorInt[2],255);
     }
 
 }
