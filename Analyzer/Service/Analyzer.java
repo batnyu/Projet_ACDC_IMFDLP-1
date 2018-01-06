@@ -141,6 +141,8 @@ public abstract class Analyzer
      */
     public abstract long getWeight(DefaultMutableTreeNode node);
 
+    public abstract void setWeight(DefaultMutableTreeNode node);
+
     /**
      * Method returning the FileNode contained on the indicated DefaultMutableTreeNode
      * @param path A string representation of the node path in the tree

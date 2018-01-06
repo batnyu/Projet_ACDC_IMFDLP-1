@@ -1,13 +1,25 @@
 package Analyzer.View;
 
+import Analyzer.Model.FileNode;
 import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
+import Analyzer.Model.FileRowModel;
+import org.netbeans.swing.outline.DefaultOutlineModel;
+import org.netbeans.swing.outline.Outline;
+import org.netbeans.swing.outline.OutlineModel;
+import org.netbeans.swing.outline.RenderDataProvider;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutionException;
 
 public class TreePanel extends ZContainer implements Observer {
 
@@ -19,10 +31,13 @@ public class TreePanel extends ZContainer implements Observer {
     Analyzer analyzer;
     Filter filter;
 
+    JPanel mainPart;
     JLabel mainLabel;
     LoadingPanel loadingPanel;
     Dimension dim;
     JTree tree;
+    JScrollPane jScrollPane;
+    Outline outline;
 
     public TreePanel(Dimension dim, Analyzer analyzer) {
         super(dim);
@@ -79,7 +94,7 @@ public class TreePanel extends ZContainer implements Observer {
             }
 
             //Reset filter when no fields completed
-            if(actionsPanel.getOptionsPanel().getPattern().equals("") && actionsPanel.getOptionsPanel().getWeight() == 0 && actionsPanel.getOptionsPanel().getDate() == null){
+            if (actionsPanel.getOptionsPanel().getPattern().equals("") && actionsPanel.getOptionsPanel().getWeight() == 0 && actionsPanel.getOptionsPanel().getDate() == null) {
                 System.out.println("RESET FILTER");
                 filter = new Filter();
             }
@@ -92,36 +107,59 @@ public class TreePanel extends ZContainer implements Observer {
         ActionsPanel actionsPanel = new ActionsPanel(this.dim, this);
         this.panel.add(actionsPanel.getPanel(), BorderLayout.NORTH);
 
+        mainPart = new JPanel(new BorderLayout());
+
+        final JTextField field = new JTextField(10);
+        field.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent ke) {
+                super.keyTyped(ke);
+                if (field.getText().equals("")) {
+                    outline.unsetQuickFilter();
+                } else {
+                    outline.setQuickFilter(0, field.getText());
+                }
+            }
+        });
+
+
+        mainPart.add(field, BorderLayout.NORTH);
+
         mainLabel = new JLabel("Choose a directory");
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
-        this.panel.add(mainLabel, BorderLayout.CENTER);
+        mainPart.add(mainLabel, BorderLayout.CENTER);
+
+
+        this.panel.add(mainPart, BorderLayout.CENTER);
+
+
     }
 
     public void getTree(String path) {
 
         //Reset view
-        if (tree != null) {
-            this.panel.remove(tree);
+        if (jScrollPane != null) {
+            mainPart.remove(jScrollPane);
         }
         if (mainLabel != null) {
-            this.panel.remove(mainLabel);
+            mainPart.remove(mainLabel);
         }
 
         loadingPanel = new LoadingPanel(this.dim, "Building the tree rooted by " + path);
-        this.panel.add(loadingPanel.getPanel(), BorderLayout.CENTER);
-        this.panel.revalidate();
+        mainPart.add(loadingPanel.getPanel(), BorderLayout.CENTER);
+        mainPart.revalidate();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
             public Void doInBackground() {
 
-                analyzer.buildFileTree(path,filter, thread, hash, recordInCache, maxDepth);
+                analyzer.buildFileTree(path, filter, thread, hash, recordInCache, maxDepth);
                 return null;
             }
 
             @Override
             public void done() {
+                analyzer.setWeight(analyzer.getRoot());
                 displayTree();
             }
         };
@@ -132,15 +170,80 @@ public class TreePanel extends ZContainer implements Observer {
 
     public void displayTree() {
 
-        this.panel.remove(this.loadingPanel.getPanel());
-        this.panel.revalidate();
-        this.panel.repaint();
+//        this.panel.remove(this.loadingPanel.getPanel());
+//        this.panel.revalidate();
+//        this.panel.repaint();
 
-        //JTreeTable tree = new JTreeTable((TreeTableModel)analyzer.getTreeModel());
-        //this.panel.add(tree, BorderLayout.CENTER);
+        mainPart.remove(this.loadingPanel.getPanel());
+        mainPart.revalidate();
+        mainPart.repaint();
 
-        tree = new JTree(analyzer.getRoot());
-        this.panel.add(tree, BorderLayout.LINE_START);
+        //FilteredTree ftree = new FilteredTree(analyzer.getRoot());
+
+        TreeModel treeModel = analyzer.getTreeModel();
+
+        OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeModel,
+                new FileRowModel(), true, "File System");
+
+        outline = new Outline();
+        outline.setRenderDataProvider(new FileDataProvider());
+        outline.setRootVisible(true);
+        outline.setModel(mdl);
+
+        jScrollPane = new JScrollPane(outline);
+        mainPart.add(jScrollPane, BorderLayout.CENTER);
+
+//        final JTree tree = ftree.getTree();
+//
+//        MouseListener ml = new MouseAdapter() {
+//            public void mousePressed(MouseEvent e) {
+//                int selRow = tree.getRowForLocation(e.getX(), e.getY());
+//                TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+//                if (selRow != -1) {
+//                    if (e.getClickCount() == 1) {
+//                        System.out.println("" + selPath.getLastPathComponent());
+//                    }
+//                }
+//            }
+//        };
+//        tree.addMouseListener(ml);
+    }
+
+    private class FileDataProvider implements RenderDataProvider {
+        public java.awt.Color getBackground(Object o) {
+            return null;
+        }
+
+        public String getDisplayName(Object o) {
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+            FileNode fileNode = ((FileNode) node.getUserObject());
+
+            return fileNode.getName();
+        }
+
+        public java.awt.Color getForeground(Object o) {
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+            FileNode fileNode = ((FileNode) node.getUserObject());
+
+            if (!fileNode.isDirectory() && !fileNode.canWrite()) {
+                return UIManager.getColor("controlShadow");
+            }
+            return null;
+        }
+
+        public javax.swing.Icon getIcon(Object o) {
+            return null;
+        }
+
+        public String getTooltipText(Object o) {
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+            FileNode fileNode = ((FileNode) node.getUserObject());
+            return fileNode.getAbsolutePath();
+        }
+
+        public boolean isHtmlDisplayName(Object o) {
+            return false;
+        }
     }
 
 }
