@@ -27,7 +27,7 @@ public class FileRowModel implements RowModel {
             case 2:
                 return Long.class;
             case 3:
-                return Integer.class;
+                return Float.class;
             case 4:
                 return Date.class;
             default:
@@ -65,11 +65,11 @@ public class FileRowModel implements RowModel {
         DefaultMutableTreeNode mutableTreeNode = ((DefaultMutableTreeNode) node);
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) mutableTreeNode.getParent();
         FileNode fileNode = (FileNode) mutableTreeNode.getUserObject();
-        long sizeParent;
+        float sizeParent;
         if (!mutableTreeNode.isRoot()) {
-            sizeParent = ((FileNode) parent.getUserObject()).getSize();
+            sizeParent = (float)((FileNode) parent.getUserObject()).getSize();
         } else {
-            sizeParent = fileNode.getSize();
+            sizeParent = (float)fileNode.getSize();
         }
 
         switch (column) {
@@ -80,7 +80,7 @@ public class FileRowModel implements RowModel {
             case 2:
                 return fileNode.getNumberFolders();
             case 3:
-                return (toIntExact(fileNode.getSize()) * 100) / toIntExact(sizeParent);
+                return (fileNode.getSize() * 100) / sizeParent;
             case 4:
                 return new Date(fileNode.lastModified());
             default:

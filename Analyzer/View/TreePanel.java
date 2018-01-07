@@ -16,9 +16,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
@@ -282,7 +280,7 @@ public class TreePanel extends ZContainer implements Observer {
         ProgressBarRenderer pbr = new ProgressBarRenderer(0, 100);
         pbr.setStringPainted(true);
         //pbr.setForeground(new Color(179, 255, 165));
-        outline.setDefaultRenderer(Integer.class,pbr);
+        outline.setDefaultRenderer(Float.class,pbr);
 
         //outline.setQuickFilter(1, new Long(8466));
         //outline.setQuickFilter(0, new String("help-doc.html"));
@@ -368,8 +366,12 @@ public class TreePanel extends ZContainer implements Observer {
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
-
-            setValue((Integer) value);
+            
+            DecimalFormat df = new DecimalFormat();
+            df.setMaximumFractionDigits(1);
+            String valueStr = df.format(value);
+            setString(valueStr + "%");
+            setValue(Math.round((Float) value));
 
             return this;
         }
