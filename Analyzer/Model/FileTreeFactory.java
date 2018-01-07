@@ -37,6 +37,7 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable {
     private int maxDepth;
     private List<Future<DefaultMutableTreeNode>> results;
     private boolean thread = true;
+    private boolean filtered = false;
 
     private Deque<Long> dirSizeStack = new ArrayDeque<>();
 
@@ -145,6 +146,7 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable {
                         }
                     }
                     currentNode.add(node);
+                    filtered = true;
                     //dirSizeStack.push(dirSizeStack.pop() + attrs.size());
                 }
             }
@@ -185,6 +187,10 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable {
                 root.add(result.get());
             }
             Thread.currentThread().interrupt();
+        }
+
+        if(!filtered){
+            return new DefaultMutableTreeNode(rootPath.getFileName().toString());
         }
 
         return root;

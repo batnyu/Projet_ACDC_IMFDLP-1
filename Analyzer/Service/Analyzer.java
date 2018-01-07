@@ -14,6 +14,7 @@ import Analyzer.Control.ErrorManager;
 import Analyzer.Control.FileTreeListener;
 import Analyzer.Control.SystemListener;
 import Analyzer.Model.FileNode;
+import Analyzer.Model.InfoNode;
 
 /**
  * Analyser services 
@@ -141,7 +142,9 @@ public abstract class Analyzer
      */
     public abstract long getWeight(DefaultMutableTreeNode node);
 
-    public abstract void setWeight(DefaultMutableTreeNode node);
+    public abstract InfoNode getInfoNode(DefaultMutableTreeNode node);
+
+    public abstract void setInfoNode(DefaultMutableTreeNode node);
 
     /**
      * Method returning the FileNode contained on the indicated DefaultMutableTreeNode

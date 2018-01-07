@@ -3,17 +3,32 @@ package Analyzer.Model;
 import Analyzer.Model.FileNode;
 import org.netbeans.swing.outline.RowModel;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.VariableHeightLayoutCache;
 import java.util.Date;
 
+import static java.lang.Math.toIntExact;
+
 public class FileRowModel implements RowModel {
+
+    public static final Integer FILE_SYSTEM_COLUMN = 0;
+    public static final Integer WEIGHT_COLUMN = 1;
+    public static final Integer DATE_COLUMN = 5;
+
     @Override
     public Class getColumnClass(int column) {
         switch (column) {
             case 0:
                 return Long.class;
             case 1:
+                return Long.class;
+            case 2:
+                return Long.class;
+            case 3:
+                return Integer.class;
+            case 4:
                 return Date.class;
             default:
                 assert false;
@@ -23,22 +38,50 @@ public class FileRowModel implements RowModel {
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return 5;
     }
 
     @Override
     public String getColumnName(int column) {
-        return column == 0 ? "Date" : "Size";
+        switch (column) {
+            case 0:
+                return "Size";
+            case 1:
+                return "Files";
+            case 2:
+                return "Folders";
+            case 3:
+                return "% of Parent (Size)";
+            case 4:
+                return "Date";
+            default:
+                assert false;
+        }
+        return null;
     }
 
     @Override
     public Object getValueFor(Object node, int column) {
         DefaultMutableTreeNode mutableTreeNode = ((DefaultMutableTreeNode) node);
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) mutableTreeNode.getParent();
         FileNode fileNode = (FileNode) mutableTreeNode.getUserObject();
+        long sizeParent;
+        if (!mutableTreeNode.isRoot()) {
+            sizeParent = ((FileNode) parent.getUserObject()).getSize();
+        } else {
+            sizeParent = fileNode.getSize();
+        }
+
         switch (column) {
             case 0:
-                return new Long(fileNode.getSize());
+                return fileNode.getSize();
             case 1:
+                return fileNode.getNumberFiles();
+            case 2:
+                return fileNode.getNumberFolders();
+            case 3:
+                return (toIntExact(fileNode.getSize()) * 100) / toIntExact(sizeParent);
+            case 4:
                 return new Date(fileNode.lastModified());
             default:
                 assert false;

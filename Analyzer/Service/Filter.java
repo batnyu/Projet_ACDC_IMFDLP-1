@@ -8,13 +8,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import Analyzer.Control.ErrorManager;
+import Analyzer.Model.FileNode;
+import org.netbeans.swing.etable.QuickFilter;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * Class defining a file filter
  *
  * @author Valentin Bourcier
  */
-public class Filter implements FileFilter {
+public class Filter implements FileFilter, QuickFilter {
 
     private long weight;
     private boolean weightGt;
@@ -52,33 +56,51 @@ public class Filter implements FileFilter {
             accept = accept && directory;
         }
 
-        if (pattern != null) {
+//        accept = accept && acceptRegex(file.getName(), accept);
+
+        //accept = accept && acceptWeight(file.length(), accept);
+
+        //accept = accept && acceptDate(file.lastModified(), accept);
+
+        if (pattern != null)
+        {
             try {
                 Pattern regexp = Pattern.compile(pattern);
                 Matcher match = regexp.matcher(file.getName());
                 accept = accept && match.find();
-            } catch (Exception error) {
+            }catch(Exception error){
                 System.out.println("Invalid pattern");
                 error.printStackTrace();
                 ErrorManager.throwError(error);
                 System.exit(1);
             }
         }
-        if (weightGt && weight > 0) {
+        if (weightGt && weight > 0)
+        {
             accept = accept && file.length() > weight;
-        } else if (weightLw && weight > 0) {
+        }
+        else if (weightLw && weight > 0)
+        {
             accept = accept && file.length() < weight;
-        } else if (weight > 0) {
+        }
+        else if (weight > 0)
+        {
             accept = accept && file.length() == weight;
         }
 
-        if (dateGt && date > 0) {
+        if (dateGt && date > 0)
+        {
             accept = accept && file.lastModified() > date;
-        } else if (dateLw && date > 0) {
+        }
+        else if (dateLw && date > 0)
+        {
             accept = accept && file.lastModified() < date;
-        } else if (date > 0) {
+        }
+        else if (date > 0)
+        {
             accept = accept && file.lastModified() == date;
         }
+
 
         if (!extensions.isEmpty() && !file.isDirectory()) {
             String extension = "";
@@ -216,4 +238,76 @@ public class Filter implements FileFilter {
         }
     }
 
+    /**
+     * Method accept for quickFilter of Outline
+     *
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean accept(Object o) {
+        System.out.println(o.getClass());
+        if (o instanceof Long) {
+            System.out.println(o + " = " + weight + " ?");
+            System.out.println((Long) o == weight);
+            return acceptWeight((Long) o, true);
+        } else if (o instanceof Date) {
+            Date date = ((Date) o);
+            System.out.println(date.toString());
+            return acceptDate(date.getTime(), true);
+        } else {
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+            FileNode fileNode = ((FileNode) node.getUserObject());
+            System.out.println(fileNode.toString());
+            return acceptRegex(fileNode.getName(), true);
+        }
+    }
+
+    public boolean acceptWeight(Long weightToAccept, boolean accept) {
+
+        System.out.println(weightToAccept > weight);
+        System.out.println(weightToAccept < weight);
+        System.out.println(weightToAccept == weight);
+
+        if (weightGt && weight > 0) {
+            accept = accept && weightToAccept > weight;
+        } else if (weightLw && weight > 0) {
+            accept = accept && weightToAccept < weight;
+        } else if (weight > 0) {
+            accept = accept && weightToAccept == weight;
+        }
+        return accept;
+    }
+
+    public boolean acceptRegex(String fileName, boolean accept) {
+        if (pattern != null) {
+            try {
+                Pattern regexp = Pattern.compile(pattern);
+                Matcher match = regexp.matcher(fileName);
+                accept = accept && match.find();
+            } catch (Exception error) {
+                System.out.println("Invalid pattern");
+                error.printStackTrace();
+                ErrorManager.throwError(error);
+                System.exit(1);
+            }
+        }
+        return accept;
+    }
+
+    public boolean acceptDate(Long dateToAccept, boolean accept) {
+        System.out.println("dateToAccept = " + dateToAccept);
+        System.out.println("date = " + date);
+        System.out.println(dateToAccept + " = " + date + " ? " + dateToAccept.equals(date));
+        if (dateGt && date > 0) {
+            accept = accept && dateToAccept > date;
+        } else if (dateLw && date > 0) {
+            accept = accept && dateToAccept < date;
+        } else if (date > 0) {
+            accept = accept && dateToAccept == date;
+        } else if (date == -1) {
+            accept = true;
+        }
+        return accept;
+    }
 }

@@ -2,6 +2,7 @@ package Analyzer.Model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
@@ -157,9 +158,6 @@ public class FileTree extends Analyzer {
         while (en.hasMoreElements()) {
             DefaultMutableTreeNode next = en.nextElement();
             FileNode file = (FileNode) next.getUserObject();
-//            if (file.isFile()) {
-//                size += file.length();
-//            }
             boolean vIsWindows = System.getProperty("os.name").toLowerCase().contains("windows");
             if (file.isFile() || (file.isDirectory() && !vIsWindows))
             {
@@ -170,17 +168,45 @@ public class FileTree extends Analyzer {
     }
 
     @Override
-    public void setWeight(DefaultMutableTreeNode node) {
+    public InfoNode getInfoNode(DefaultMutableTreeNode node) {
+        long size = 0;
+        long nbFiles = 0;
+        long nbFolders = 0;
+
+        @SuppressWarnings("unchecked")
+        Enumeration<DefaultMutableTreeNode> en = node.preorderEnumeration();
+        while (en.hasMoreElements()) {
+            DefaultMutableTreeNode next = en.nextElement();
+            FileNode file = (FileNode) next.getUserObject();
+            boolean vIsWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+            if (file.isFile() || (file.isDirectory() && !vIsWindows))
+            {
+                size += file.length();
+                nbFiles++;
+            } else if(file.isDirectory() && !next.equals(node)){
+                nbFolders++;
+            }
+
+        }
+        return new InfoNode(size, nbFiles, nbFolders);
+    }
+
+    @Override
+    public void setInfoNode(DefaultMutableTreeNode node) {
         @SuppressWarnings("unchecked")
         Enumeration<DefaultMutableTreeNode> en = node.breadthFirstEnumeration();
         while (en.hasMoreElements()) {
             DefaultMutableTreeNode next = en.nextElement();
             FileNode file = (FileNode) next.getUserObject();
             if (file.isDirectory()) {
-                long size = getWeight(next);
-                file.setSize(size);
+                InfoNode infoNode = getInfoNode(next);
+                file.setSize(infoNode.getSize());
+                file.setNumberFiles(infoNode.getNumberFiles());
+                file.setNumberFolders(infoNode.getNumberFolders());
             } else {
                 file.setSize(file.length());
+                file.setNumberFiles(1);
+                file.setNumberFolders(0);
             }
         }
     }
@@ -407,11 +433,6 @@ public class FileTree extends Analyzer {
             throw new IOException();
         }
     }
-
-/*    public void sortTree(TreeModel treeModel) {
-        treeModel.reload
-        treeModel.reload(sort(getRoot()));
-    }*/
 
     public static DefaultMutableTreeNode sortFolderFirst(DefaultMutableTreeNode node) {
         //put folders first - normal on Windows and some flavors of Linux but not on Mac OS X.

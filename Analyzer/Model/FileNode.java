@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 import Analyzer.Control.ErrorManager;
 
@@ -24,14 +25,8 @@ public class FileNode extends File implements Serializable {
     public final long INSTANCE_TIME = System.currentTimeMillis();
 
     private long size;
-
-    public long getSize() {
-        return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
+    private long numberFiles;
+    private long numberFolders;
 
     /**
      * FileNode builder
@@ -41,6 +36,30 @@ public class FileNode extends File implements Serializable {
     public FileNode(String path) {
         super(path);
         hash = null;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    public long getNumberFiles() {
+        return numberFiles;
+    }
+
+    public void setNumberFiles(long numberFiles) {
+        this.numberFiles = numberFiles;
+    }
+
+    public long getNumberFolders() {
+        return numberFolders;
+    }
+
+    public void setNumberFolders(long numberFolders) {
+        this.numberFolders = numberFolders;
     }
 
     /**

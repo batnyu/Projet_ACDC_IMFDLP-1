@@ -2,9 +2,12 @@ package Analyzer.View;
 
 import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
+import org.jdesktop.xswingx.demo.Demo;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,10 +34,27 @@ public class Window extends JFrame {
 
     public Window() {
         this.setTitle("Il me faut de la place !");
-        this.setSize(900, 600);
+        this.setSize(1200, 600);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         //this.setResizable(false);
+
+        UIManager.installLookAndFeel("JGoodies Windows", WindowsLookAndFeel.class.getName());
+        try {
+            UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
+        //Change text color of ProgressBar
+        UIManager.put("ProgressBar.selectionForeground", Color.white);
+        UIManager.put("ProgressBar.selectionBackground", Color.black);
 
         this.size = new Dimension(this.getWidth(), this.getHeight());
 
@@ -47,6 +67,8 @@ public class Window extends JFrame {
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         menu = new JMenuBar();
+
+
 
         file = new JMenu("File");
         file.setMnemonic('f');
@@ -77,6 +99,7 @@ public class Window extends JFrame {
         //file.addSeparator();
 
         menu.add(file);
+        menu.add(createLookAndFeelMenu(this));
 
         //this.container.setBackground(Color.pink);
         this.container.setLayout(new BorderLayout());
@@ -84,13 +107,13 @@ public class Window extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        treePanel = new TreePanel(size,analyzer);
-        duplicatesPanel = new DuplicatesPanel(size,analyzer);
+        treePanel = new TreePanel(size, analyzer);
+        duplicatesPanel = new DuplicatesPanel(size, analyzer);
 
-        tabbedPane.addTab("Scan",treePanel.getPanel());
+        tabbedPane.addTab("Scan", treePanel.getPanel());
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
-        tabbedPane.addTab("Duplicates",duplicatesPanel.getPanel());
+        tabbedPane.addTab("Duplicates", duplicatesPanel.getPanel());
         tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
         this.container.add(tabbedPane);
@@ -98,10 +121,35 @@ public class Window extends JFrame {
         bottomPanel = new BottomPanel(size);
         analyzer.addErrorHandler(bottomPanel);
 
-        this.container.add(bottomPanel.getPanel(),BorderLayout.SOUTH);
+        this.container.add(bottomPanel.getPanel(), BorderLayout.SOUTH);
 
         this.setContentPane(this.container);
 
         this.setJMenuBar(menu);
+    }
+
+    public static JMenu createLookAndFeelMenu(final Component toUpdate) {
+        final JMenu lnf = new JMenu("Look and Feel");
+        for (final UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            String name = info.getName();
+            if (name.equals("Nimbus") || name.equals("JGoodies Windows")) {
+                final JMenuItem mi = new JMenuItem(name);
+                lnf.add(mi);
+
+                mi.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            System.out.println(info.getClassName());
+                            SwingUtilities.updateComponentTreeUI(toUpdate);
+                        } catch (Exception ex) {
+                            mi.setEnabled(false);
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+        return lnf;
     }
 }
