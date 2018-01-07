@@ -228,6 +228,7 @@ public class TreePanel extends ZContainer implements Observer {
             public Void doInBackground() {
 
                 analyzer.buildFileTree(path, filter, thread, hash, recordInCache, maxDepth);
+                analyzer.setInfoNode(analyzer.getRoot());
                 return null;
             }
 
@@ -236,7 +237,7 @@ public class TreePanel extends ZContainer implements Observer {
                 if (analyzer.getRoot().getUserObject() instanceof String) {
                     displayNoFiles();
                 } else {
-                    analyzer.setInfoNode(analyzer.getRoot());
+                    //analyzer.setInfoNode(analyzer.getRoot());
                     displayTree();
                 }
             }
