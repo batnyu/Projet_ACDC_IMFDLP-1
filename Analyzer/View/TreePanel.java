@@ -366,7 +366,7 @@ public class TreePanel extends ZContainer implements Observer {
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
-            
+
             DecimalFormat df = new DecimalFormat();
             df.setMaximumFractionDigits(1);
             String valueStr = df.format(value);

@@ -2,6 +2,8 @@ package Analyzer.Service;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -246,7 +248,6 @@ public class Filter implements FileFilter, QuickFilter {
      */
     @Override
     public boolean accept(Object o) {
-        System.out.println(o.getClass());
         if (o instanceof Long) {
             System.out.println(o + " = " + weight + " ?");
             System.out.println((Long) o == weight);
@@ -295,7 +296,12 @@ public class Filter implements FileFilter, QuickFilter {
         return accept;
     }
 
-    public boolean acceptDate(Long dateToAccept, boolean accept) {
+    public boolean acceptDateTruc(Long dateToAccept, boolean accept) {
+        Date dateToAcceptDate = new Date(dateToAccept);
+        LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dateLocalDate= new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+
         System.out.println("dateToAccept = " + dateToAccept);
         System.out.println("date = " + date);
         System.out.println(dateToAccept + " = " + date + " ? " + dateToAccept.equals(date));
@@ -305,6 +311,27 @@ public class Filter implements FileFilter, QuickFilter {
             accept = accept && dateToAccept < date;
         } else if (date > 0) {
             accept = accept && dateToAccept == date;
+        } else if (date == -1) {
+            accept = true;
+        }
+        return accept;
+    }
+
+    public boolean acceptDate(Long dateToAccept, boolean accept) {
+        Date dateToAcceptDate = new Date(dateToAccept);
+        LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dateLocalDate= new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+
+        System.out.println("dateToAccept = " + dateToAcceptLocalDate);
+        System.out.println("date = " + dateLocalDate);
+        System.out.println(dateToAccept + " = " + date + " ? " + dateToAccept.equals(date));
+        if (dateGt && date > 0) {
+            accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) > 0;
+        } else if (dateLw && date > 0) {
+            accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) < 0;
+        } else if (date > 0) {
+            accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) == 0;
         } else if (date == -1) {
             accept = true;
         }
