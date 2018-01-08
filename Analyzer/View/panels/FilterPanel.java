@@ -1,45 +1,51 @@
-package Analyzer.View;
+package Analyzer.View.panels;
 
-import Analyzer.Model.FileNode;
-import Analyzer.Service.Filter;
 import org.jdesktop.xswingx.JXSearchField;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.Date;
-import java.util.Observable;
 import java.util.Observer;
 
 public class FilterPanel extends ZContainer {
 
-    public static final Integer CHANGE_PATTERN_FILTER = 0;
-    public static final Integer CHANGE_WEIGHT_FILTER = 1;
-    public static final Integer CHANGE_DATE_FILTER = 2;
+    public static final Integer CHANGE_DEPTH_SEARCH = 0;
+    public static final Integer CHANGE_PATTERN_FILTER = 1;
+    public static final Integer CHANGE_WEIGHT_FILTER = 2;
+    public static final Integer CHANGE_DATE_FILTER = 3;
 
-    ZContainer container;
+    private ZContainer container;
 
-    JXSearchField weightField;
-    JXSearchField patternField;
-    JXSearchField dateField;
+    private JXSearchField depthField;
+    private JXSearchField weightField;
+    private JXSearchField patternField;
+    private JXSearchField dateField;
 
-    Long weight;
-    String conditionWeight;
 
-    String pattern;
+    private int depth;
 
-    String date;
+    private Long weight;
+    private String conditionWeight;
 
-    String conditionDate;
+    private String pattern;
+
+    private String date;
+
+    private String conditionDate;
 
     public FilterPanel(Dimension dim, ZContainer container) {
         super(dim);
         this.addObserver((Observer) container);
         this.container = container;
         initPanel();
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 
     public Long getWeight() {
@@ -83,6 +89,26 @@ public class FilterPanel extends ZContainer {
     }
 
     public void initPanel() {
+
+        depthField = new JXSearchField("Set depth of search");
+        depthField.setSearchMode(JXSearchField.SearchMode.INSTANT);
+        depthField.setInstantSearchDelay(0);
+        depthField.setColumns(9);
+
+        depthField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                String searchText = depthField.getText();
+                if (searchText.equals("")) {
+                    setDepth(0);
+                } else {
+                    setDepth(Integer.parseInt(searchText));
+                }
+                //Anouncing data change
+                setChanged();
+                notifyObservers(CHANGE_DEPTH_SEARCH);
+            }
+        });
 
         patternField = new JXSearchField("Filter by regex pattern");
         patternField.setSearchMode(JXSearchField.SearchMode.INSTANT);
@@ -155,12 +181,14 @@ public class FilterPanel extends ZContainer {
         });
 
         this.panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        this.panel.add(depthField);
         this.panel.add(patternField);
         this.panel.add(weightField);
         this.panel.add(dateField);
     }
 
     public void resetFields() {
+        depthField.setText("");
         patternField.setText("");
         weightField.setText("");
         dateField.setText("");

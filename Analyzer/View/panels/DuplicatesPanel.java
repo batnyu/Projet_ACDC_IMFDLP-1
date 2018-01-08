@@ -1,4 +1,4 @@
-package Analyzer.View;
+package Analyzer.View.panels;
 
 import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
@@ -68,7 +68,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
     public void update(Observable o, Object arg) {
         ActionsPanel actionsPanel = (ActionsPanel) o;
         Integer iMessage = (Integer) arg;
-        if (iMessage == ActionsPanel.CHANGE_SELECTED_FILE) {
+        if (iMessage == ActionsPanel.START_SEARCH) {
             getDuplicates(actionsPanel.getCurrentSelectedFilePath());
         } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
             System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
@@ -153,8 +153,6 @@ public class DuplicatesPanel extends ZContainer implements Observer {
 
             }
         }
-
-
     }
 
     public void initPanel() {

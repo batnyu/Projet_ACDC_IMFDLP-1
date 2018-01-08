@@ -208,7 +208,7 @@ public class Filter implements FileFilter, QuickFilter {
      */
     @Override
     public boolean accept(Object o) {
-        System.out.println("o.getClass() = " + o.getClass());
+        //System.out.println("o.getClass() = " + o.getClass());
         if (o instanceof Long) {
             System.out.println(o + " = " + weight + " ?");
             System.out.println((Long) o == weight);

@@ -1,4 +1,4 @@
-package Analyzer.View;
+package Analyzer.View.panels;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,15 +17,15 @@ public abstract class ZContainer extends Observable {
         this.panel = new JPanel();
         //this.panel.setPreferredSize(dim);
         this.panel.setLayout(new BorderLayout());
-        this.panel.setBackground(Color.white);
+        //this.panel.setBackground(Color.white);
         //this.panel.setBorder(BorderFactory.createLineBorder(Color.red));
 
     }
 
-    protected JPanel getPanel() {
+    public JPanel getPanel() {
         return this.panel;
     }
 
-    protected abstract void initPanel();
+    public abstract void initPanel();
 
 }

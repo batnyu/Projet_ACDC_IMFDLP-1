@@ -1,4 +1,4 @@
-package Analyzer.View;
+package Analyzer.View.panels;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -10,21 +10,25 @@ import java.util.Observer;
 
 public class ActionsPanel extends ZContainer {
 
-    public static final Integer CHANGE_SELECTED_FILE = 0;
+    public static final Integer START_SEARCH = 0;
     public static final Integer CHANGE_OPTIONS = 1;
     public static final Integer DELETING_SELECTED_FILES = 2;
 
-    final JFileChooser fc;
+    private final JFileChooser fc;
 
-    String currentSelectedFilePath;
-    OptionsPanel optionsPanel;
-    ZContainer container;
+    private String currentSelectedFilePath;
+    private OptionsPanel optionsPanel;
+    private ZContainer container;
+    private JPanel go;
+    private JLabel selectedPath;
+    private JButton start;
 
     public ActionsPanel(Dimension dim, ZContainer container) {
         super(dim);
         this.addObserver((Observer) container);
         this.container = container;
         fc = new JFileChooser();
+        selectedPath = new JLabel("<html><strong>Selected path:</strong> <i>none</i></html>");
         initPanel();
     }
 
@@ -55,10 +59,8 @@ public class ActionsPanel extends ZContainer {
                     File file = fc.getSelectedFile();
                     System.out.println("Opening: " + file.getAbsolutePath());
                     currentSelectedFilePath = file.getAbsolutePath();
-                    //Anouncing data change
-                    setChanged();
-                    notifyObservers(CHANGE_SELECTED_FILE);
-
+                    selectedPath.setText("<html><strong>Selected path:</strong> <i>" + currentSelectedFilePath + "</i></html>");
+                    start.setEnabled(true);
                 } else {
                     System.out.println("Open command cancelled by user.");
                 }
@@ -86,9 +88,9 @@ public class ActionsPanel extends ZContainer {
             }
         });
 
-        this.panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        this.panel.add(selectDirectory);
-        this.panel.add(editOptions);
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttons.add(selectDirectory);
+        buttons.add(editOptions);
 
         if (this.container instanceof DuplicatesPanel) {
             JButton deleteSelected = new JButton("Delete selected");
@@ -101,7 +103,25 @@ public class ActionsPanel extends ZContainer {
                 }
             });
 
-            this.panel.add(deleteSelected);
+            buttons.add(deleteSelected);
         }
+
+        this.panel.add(buttons,BorderLayout.NORTH);
+
+        go = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        go.add(selectedPath);
+        start = new JButton("Start");
+        start.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //Anouncing data change
+                setChanged();
+                notifyObservers(START_SEARCH);
+            }
+        });
+        start.setEnabled(false);
+        go.add(start);
+
+        this.panel.add(go, BorderLayout.CENTER);
     }
 }

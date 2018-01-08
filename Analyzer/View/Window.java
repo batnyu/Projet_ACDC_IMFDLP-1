@@ -2,15 +2,14 @@ package Analyzer.View;
 
 import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
+import Analyzer.View.panels.BottomPanel;
+import Analyzer.View.panels.DuplicatesPanel;
+import Analyzer.View.panels.TreePanel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
-import org.jdesktop.xswingx.demo.Demo;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.plaf.basic.BasicProgressBarUI;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -31,6 +30,7 @@ public class Window extends JFrame {
     TreePanel treePanel;
     DuplicatesPanel duplicatesPanel;
     BottomPanel bottomPanel;
+    private final JTabbedPane tabbedPane;
 
     public Window() {
         this.setTitle("Il me faut de la place !");
@@ -55,6 +55,8 @@ public class Window extends JFrame {
         //Change text color of ProgressBar
         UIManager.put("ProgressBar.selectionForeground", Color.white);
         UIManager.put("ProgressBar.selectionBackground", Color.black);
+        //To fix white color when hover menuitem
+        UIManager.put("MenuItem.selectionForeground", Color.black);
 
         this.size = new Dimension(this.getWidth(), this.getHeight());
 
@@ -104,9 +106,9 @@ public class Window extends JFrame {
         this.container.setLayout(new BorderLayout());
 
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
-        treePanel = new TreePanel(size, analyzer);
+        treePanel = new TreePanel(size, analyzer, tabbedPane);
         duplicatesPanel = new DuplicatesPanel(size, analyzer);
 
         tabbedPane.addTab("Scan", treePanel.getPanel());

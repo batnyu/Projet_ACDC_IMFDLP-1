@@ -1,4 +1,4 @@
-package Analyzer.View;
+package Analyzer.View.panels;
 
 import javax.swing.*;
 import javax.swing.border.Border;

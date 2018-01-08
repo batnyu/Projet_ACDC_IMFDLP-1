@@ -1,15 +1,9 @@
 package Analyzer.Model;
 
-import Analyzer.Model.FileNode;
 import org.netbeans.swing.outline.RowModel;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.VariableHeightLayoutCache;
 import java.util.Date;
-
-import static java.lang.Math.toIntExact;
 
 public class FileRowModel implements RowModel {
 
@@ -53,7 +47,7 @@ public class FileRowModel implements RowModel {
             case 3:
                 return "% of Parent (Size)";
             case 4:
-                return "Date";
+                return "Last modified";
             default:
                 assert false;
         }
@@ -74,11 +68,23 @@ public class FileRowModel implements RowModel {
 
         switch (column) {
             case 0:
-                return fileNode.getSize();
+                if(fileNode.isDirectory()){
+                    return "<html><strong>" + fileNode.getSize() + "</strong></html>";
+                } else {
+                    return fileNode.getSize();
+                }
             case 1:
-                return fileNode.getNumberFiles();
+                if(fileNode.isDirectory()){
+                    return "<html><strong>" + fileNode.getNumberFiles() + "</strong></html>";
+                } else {
+                    return fileNode.getNumberFiles();
+                }
             case 2:
-                return fileNode.getNumberFolders();
+                if(fileNode.isDirectory()){
+                    return "<html><strong>" + fileNode.getNumberFolders() + "</strong></html>";
+                } else {
+                    return fileNode.getNumberFolders();
+                }
             case 3:
                 return (fileNode.getSize() * 100) / sizeParent;
             case 4:
