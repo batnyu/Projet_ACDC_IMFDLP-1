@@ -70,7 +70,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         Integer iMessage = (Integer) arg;
         if (iMessage == ActionsPanel.CHANGE_SELECTED_FILE) {
             getDuplicates(actionsPanel.getCurrentSelectedFilePath());
-        } else if (iMessage == ActionsPanel.CHANGE_FILTER) {
+        } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
             System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
             System.out.println("Weight: " + actionsPanel.getOptionsPanel().getWeightInfo().getTextField().getText());
             System.out.println("Date: " + actionsPanel.getOptionsPanel().getDateInfo().getTextField().getText());
@@ -267,8 +267,12 @@ public class DuplicatesPanel extends ZContainer implements Observer {
                     String currentHash = (String)getValueAt(row,1);
                     if(row == 0 && column == 0){
                         previousHash = (String)getValueAt(row,1);
-                    } else if(previousHash != currentHash){
-                        currentColor = getNext();
+                    } else if(!previousHash.equals(currentHash)){
+                        if(currentColor == Color.white){
+                            currentColor = Color.lightGray;
+                        } else {
+                            currentColor = Color.white;
+                        }
                         previousHash = currentHash;
 
                     }

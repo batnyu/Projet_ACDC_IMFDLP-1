@@ -1,23 +1,17 @@
 package Analyzer.View;
 
-import Analyzer.Model.FileTree;
-import Analyzer.Service.Filter;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Observer;
 
 public class ActionsPanel extends ZContainer {
 
     public static final Integer CHANGE_SELECTED_FILE = 0;
-    public static final Integer CHANGE_FILTER = 1;
+    public static final Integer CHANGE_OPTIONS = 1;
     public static final Integer DELETING_SELECTED_FILES = 2;
 
     final JFileChooser fc;
@@ -87,7 +81,7 @@ public class ActionsPanel extends ZContainer {
                     System.out.println("Date truc: " + optionsPanel.getSelectedButtonText(optionsPanel.getDateInfo().getButtonGroup()));*/
                     //Anouncing data change
                     setChanged();
-                    notifyObservers(CHANGE_FILTER);
+                    notifyObservers(CHANGE_OPTIONS);
                 }
             }
         });

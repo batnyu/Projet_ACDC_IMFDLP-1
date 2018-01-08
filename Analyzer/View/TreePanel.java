@@ -4,7 +4,6 @@ import Analyzer.Model.FileNode;
 import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
 import Analyzer.Model.FileRowModel;
-import org.jdesktop.xswingx.JXSearchField;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.OutlineModel;
@@ -16,6 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.*;
 import java.text.*;
 import java.util.Date;
 import java.util.Observable;
@@ -29,26 +29,62 @@ public class TreePanel extends ZContainer implements Observer {
     private boolean thread = false;
 
     Analyzer analyzer;
-    Filter filter;
-    Filter filterAfter;
+    private Filter filter;
+    private Filter filterAfter;
 
-    JPanel mainPart;
-    JLabel mainLabel;
-    LoadingPanel loadingPanel;
-    Dimension dim;
-    JTree tree;
-    JScrollPane jScrollPane;
-    Outline outline;
-    FilterPanel filterPanel;
-
-    SwingWorker<Void, Void> getTreeWorker;
+    private JPanel mainPart;
+    private JLabel mainLabel;
+    private LoadingPanel loadingPanel;
+    private Dimension dim;
+    private JScrollPane jScrollPane;
+    private Outline outline;
+    private FilterPanel filterPanel;
+    private ContextMenu contextMenu;
+    private SwingWorker<Void, Void> getTreeWorker;
 
     public TreePanel(Dimension dim, Analyzer analyzer) {
         super(dim);
         this.dim = dim;
         this.analyzer = analyzer;
         this.filter = new Filter();
+        this.contextMenu = new ContextMenu(this);
         initPanel();
+    }
+
+    public boolean isHash() {
+        return hash;
+    }
+
+    public void setHash(boolean hash) {
+        this.hash = hash;
+    }
+
+    public boolean isRecordInCache() {
+        return recordInCache;
+    }
+
+    public void setRecordInCache(boolean recordInCache) {
+        this.recordInCache = recordInCache;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+
+    public boolean isThread() {
+        return thread;
+    }
+
+    public void setThread(boolean thread) {
+        this.thread = thread;
+    }
+
+    public Outline getOutline() {
+        return outline;
     }
 
     @Override
@@ -60,11 +96,16 @@ public class TreePanel extends ZContainer implements Observer {
             if (iMessage == ActionsPanel.CHANGE_SELECTED_FILE) {
                 this.filterAfter = new Filter();
                 getTree(actionsPanel.getCurrentSelectedFilePath());
-            } else if (iMessage == ActionsPanel.CHANGE_FILTER) {
+            } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
                 System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
                 System.out.println("Weight: " + actionsPanel.getOptionsPanel().getWeightInfo().getTextField().getText());
+                System.out.println("Weight condition: " + actionsPanel.getOptionsPanel().getSelectedButtonText(actionsPanel.getOptionsPanel().getWeightInfo().getButtonGroup()));
                 System.out.println("Date: " + actionsPanel.getOptionsPanel().getDateInfo().getTextField().getText());
-                System.out.println("Date truc: " + actionsPanel.getOptionsPanel().getSelectedButtonText(actionsPanel.getOptionsPanel().getDateInfo().getButtonGroup()));
+                System.out.println("Date condition: " + actionsPanel.getOptionsPanel().getSelectedButtonText(actionsPanel.getOptionsPanel().getDateInfo().getButtonGroup()));
+//                System.out.println("Depth: " + actionsPanel.getOptionsPanel().getDepth());
+//                System.out.println("Record in cache: " + actionsPanel.getOptionsPanel().getBoolean("cache"));
+//                System.out.println("Hash: " + actionsPanel.getOptionsPanel().getBoolean("hash"));
+//                System.out.println("Multi-thread: " + actionsPanel.getOptionsPanel().getBoolean("thread"));
 
                 if (!actionsPanel.getOptionsPanel().getPattern().equals("")) {
                     filter.setPattern(actionsPanel.getOptionsPanel().getPattern());
@@ -77,6 +118,7 @@ public class TreePanel extends ZContainer implements Observer {
                             break;
                         case "<":
                             filter.weightLw(actionsPanel.getOptionsPanel().getWeight());
+                            System.out.println("allo ? " + actionsPanel.getOptionsPanel().getWeight());
                             break;
                         case ">":
                             filter.weightGt(actionsPanel.getOptionsPanel().getWeight());
@@ -105,6 +147,14 @@ public class TreePanel extends ZContainer implements Observer {
                     System.out.println("RESET FILTER");
                     filter = new Filter();
                 }
+
+                if(!actionsPanel.getOptionsPanel().getDepth().equals("")){
+                    this.setMaxDepth(Integer.parseInt(actionsPanel.getOptionsPanel().getDepth()));
+                }
+
+                this.setHash(actionsPanel.getOptionsPanel().getBoolean("hash"));
+                this.setRecordInCache(actionsPanel.getOptionsPanel().getBoolean("cache"));
+                this.setThread(actionsPanel.getOptionsPanel().getBoolean("thread"));
             }
         } else if (o instanceof FilterPanel) {
             FilterPanel filterPanel = (FilterPanel) o;
@@ -151,7 +201,11 @@ public class TreePanel extends ZContainer implements Observer {
 
                 DateFormat sourceFormat = new SimpleDateFormat("dd/MM/yyyy");
                 try {
-                    date = sourceFormat.parse(filterPanel.getDate());
+                    if (!filterPanel.getDate().equals("noDate")) {
+                        date = sourceFormat.parse(filterPanel.getDate());
+                    } else {
+                        date = new Date(0);
+                    }
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -224,8 +278,11 @@ public class TreePanel extends ZContainer implements Observer {
         getTreeWorker = new SwingWorker<Void, Void>() {
             @Override
             public Void doInBackground() {
-
-                analyzer.buildFileTree(path, filter, thread, hash, recordInCache, maxDepth);
+                System.out.println("isThread() = " + isThread());
+                System.out.println("isRecordInCache() = " + isRecordInCache());
+                System.out.println("isHash() = " + isHash());
+                System.out.println("getMaxDepth() = " + getMaxDepth());
+                analyzer.buildFileTree(path, filter, isThread(), isHash(), isRecordInCache(), getMaxDepth());
                 analyzer.setInfoNode(analyzer.getRoot());
                 return null;
             }
@@ -245,11 +302,11 @@ public class TreePanel extends ZContainer implements Observer {
         getTreeWorker.execute();
     }
 
-    public void displayNoFiles(){
+    public void displayNoFiles() {
         mainPart.remove(this.loadingPanel.getPanel());
 
         mainLabel = new JLabel("<html>Empty directory or no files corresponding to the filter.<br>" +
-                                "Choose another directory please or change your filter.</html>");
+                "Choose another directory please or change your filter.</html>");
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         mainPart.add(mainLabel, BorderLayout.CENTER);
@@ -280,7 +337,7 @@ public class TreePanel extends ZContainer implements Observer {
         ProgressBarRenderer pbr = new ProgressBarRenderer(0, 100);
         pbr.setStringPainted(true);
         //pbr.setForeground(new Color(179, 255, 165));
-        outline.setDefaultRenderer(Float.class,pbr);
+        outline.setDefaultRenderer(Float.class, pbr);
 
         //outline.setQuickFilter(1, new Long(8466));
         //outline.setQuickFilter(0, new String("help-doc.html"));
@@ -288,20 +345,31 @@ public class TreePanel extends ZContainer implements Observer {
         jScrollPane = new JScrollPane(outline);
         mainPart.add(jScrollPane, BorderLayout.CENTER);
 
-//        final JTree tree = ftree.getTree();
-//
-//        MouseListener ml = new MouseAdapter() {
-//            public void mousePressed(MouseEvent e) {
-//                int selRow = tree.getRowForLocation(e.getX(), e.getY());
-//                TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
-//                if (selRow != -1) {
-//                    if (e.getClickCount() == 1) {
-//                        System.out.println("" + selPath.getLastPathComponent());
-//                    }
-//                }
-//            }
-//        };
-//        tree.addMouseListener(ml);
+        outline.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int selectedRow = outline.rowAtPoint(e.getPoint());
+                if (selectedRow >= 0 && selectedRow < outline.getRowCount()) {
+                    if (!outline.getSelectionModel().isSelectedIndex(selectedRow)) {
+                        outline.setRowSelectionInterval(selectedRow, selectedRow);
+                    }
+                }
+                if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
+                    showPopUp(e);
+                }
+            }
+
+            private void showPopUp(MouseEvent e) {
+                contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        });
+
+        Filter filter1 = new Filter();
+        filter1.setPattern("html");
+        filter1.weightLw(6000);
+        outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filter1);
+        outline.setQuickFilter(FileRowModel.WEIGHT_COLUMN, filter1);
+
     }
 
     private class FileDataProvider implements RenderDataProvider {
@@ -374,6 +442,29 @@ public class TreePanel extends ZContainer implements Observer {
             setValue(Math.round((Float) value));
 
             return this;
+        }
+    }
+
+    class ContextMenu extends JPopupMenu {
+        private JMenuItem item;
+        private TreePanel tableClass;  // dirty direct reference *****
+
+        public ContextMenu(TreePanel tableClass){
+            this.tableClass = tableClass;
+            this.item= new JMenuItem("Search for duplicates");
+
+            this.item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int row = tableClass.getOutline().getSelectedRow();
+                    Outline table = tableClass.getOutline();
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode)table.getValueAt(row, FileRowModel.FILE_SYSTEM_COLUMN);
+                    FileNode fileNode = (FileNode) node.getUserObject();
+                    System.out.println(fileNode.getAbsolutePath());
+                }
+            });
+
+            add(item);
         }
     }
 

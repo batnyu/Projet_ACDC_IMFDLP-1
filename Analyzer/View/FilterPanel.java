@@ -128,16 +128,17 @@ public class FilterPanel extends ZContainer {
             }
         });
 
-        dateField = new JXSearchField("Filter by date");
+        dateField = new JXSearchField("Filter by date (DD/MM/YYYY)");
         dateField.setSearchMode(JXSearchField.SearchMode.REGULAR);
-        dateField.setColumns(14);
+        dateField.setColumns(16);
         dateField.setToolTipText("Start with the condition you want [=,<,>]");
 
         dateField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String searchTextWithCondition = dateField.getText();
                 if (searchTextWithCondition.equals("")) {
-                    setDate("-1");
+                    setDate("noDate");
+                    setConditionDate("noConditionDate");
                 } else if (searchTextWithCondition.length() >= 2) {
                     String conditionDate = searchTextWithCondition.substring(0, 1);
                     setConditionDate(conditionDate);

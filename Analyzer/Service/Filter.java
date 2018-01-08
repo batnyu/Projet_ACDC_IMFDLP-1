@@ -58,51 +58,11 @@ public class Filter implements FileFilter, QuickFilter {
             accept = accept && directory;
         }
 
-//        accept = accept && acceptRegex(file.getName(), accept);
+        accept = acceptRegex(file.getName(), accept);
 
-        //accept = accept && acceptWeight(file.length(), accept);
+        accept = acceptWeight(file.length(), accept);
 
-        //accept = accept && acceptDate(file.lastModified(), accept);
-
-        if (pattern != null)
-        {
-            try {
-                Pattern regexp = Pattern.compile(pattern);
-                Matcher match = regexp.matcher(file.getName());
-                accept = accept && match.find();
-            }catch(Exception error){
-                System.out.println("Invalid pattern");
-                error.printStackTrace();
-                ErrorManager.throwError(error);
-                System.exit(1);
-            }
-        }
-        if (weightGt && weight > 0)
-        {
-            accept = accept && file.length() > weight;
-        }
-        else if (weightLw && weight > 0)
-        {
-            accept = accept && file.length() < weight;
-        }
-        else if (weight > 0)
-        {
-            accept = accept && file.length() == weight;
-        }
-
-        if (dateGt && date > 0)
-        {
-            accept = accept && file.lastModified() > date;
-        }
-        else if (dateLw && date > 0)
-        {
-            accept = accept && file.lastModified() < date;
-        }
-        else if (date > 0)
-        {
-            accept = accept && file.lastModified() == date;
-        }
-
+        accept = acceptDate(file.lastModified(), accept);
 
         if (!extensions.isEmpty() && !file.isDirectory()) {
             String extension = "";
@@ -248,6 +208,7 @@ public class Filter implements FileFilter, QuickFilter {
      */
     @Override
     public boolean accept(Object o) {
+        System.out.println("o.getClass() = " + o.getClass());
         if (o instanceof Long) {
             System.out.println(o + " = " + weight + " ?");
             System.out.println((Long) o == weight);
@@ -264,21 +225,6 @@ public class Filter implements FileFilter, QuickFilter {
         }
     }
 
-    public boolean acceptWeight(Long weightToAccept, boolean accept) {
-
-        System.out.println(weightToAccept > weight);
-        System.out.println(weightToAccept < weight);
-        System.out.println(weightToAccept == weight);
-
-        if (weightGt && weight > 0) {
-            accept = accept && weightToAccept > weight;
-        } else if (weightLw && weight > 0) {
-            accept = accept && weightToAccept < weight;
-        } else if (weight > 0) {
-            accept = accept && weightToAccept == weight;
-        }
-        return accept;
-    }
 
     public boolean acceptRegex(String fileName, boolean accept) {
         if (pattern != null) {
@@ -296,23 +242,16 @@ public class Filter implements FileFilter, QuickFilter {
         return accept;
     }
 
-    public boolean acceptDateTruc(Long dateToAccept, boolean accept) {
-        Date dateToAcceptDate = new Date(dateToAccept);
-        LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate dateLocalDate= new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    public boolean acceptWeight(Long weightToAccept, boolean accept) {
 
+        System.out.println(weightToAccept + " = " + weight + " ? " + weightToAccept.equals(weight));
 
-        System.out.println("dateToAccept = " + dateToAccept);
-        System.out.println("date = " + date);
-        System.out.println(dateToAccept + " = " + date + " ? " + dateToAccept.equals(date));
-        if (dateGt && date > 0) {
-            accept = accept && dateToAccept > date;
-        } else if (dateLw && date > 0) {
-            accept = accept && dateToAccept < date;
-        } else if (date > 0) {
-            accept = accept && dateToAccept == date;
-        } else if (date == -1) {
-            accept = true;
+        if (weightGt && weight > 0) {
+            accept = accept && weightToAccept > weight;
+        } else if (weightLw && weight > 0) {
+            accept = accept && weightToAccept < weight;
+        } else if (weight > 0) {
+            accept = accept && weightToAccept == weight;
         }
         return accept;
     }
@@ -321,7 +260,6 @@ public class Filter implements FileFilter, QuickFilter {
         Date dateToAcceptDate = new Date(dateToAccept);
         LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate dateLocalDate= new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
 
         System.out.println("dateToAccept = " + dateToAcceptLocalDate);
         System.out.println("date = " + dateLocalDate);
@@ -332,8 +270,8 @@ public class Filter implements FileFilter, QuickFilter {
             accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) < 0;
         } else if (date > 0) {
             accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) == 0;
-        } else if (date == -1) {
-            accept = true;
+        } else {
+            accept = accept && date == 0;
         }
         return accept;
     }
