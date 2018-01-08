@@ -99,7 +99,6 @@ public class Window extends JFrame {
         //file.addSeparator();
 
         menu.add(file);
-        menu.add(createLookAndFeelMenu(this));
 
         //this.container.setBackground(Color.pink);
         this.container.setLayout(new BorderLayout());
@@ -126,30 +125,5 @@ public class Window extends JFrame {
         this.setContentPane(this.container);
 
         this.setJMenuBar(menu);
-    }
-
-    public static JMenu createLookAndFeelMenu(final Component toUpdate) {
-        final JMenu lnf = new JMenu("Look and Feel");
-        for (final UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-            String name = info.getName();
-            if (name.equals("Nimbus") || name.equals("JGoodies Windows")) {
-                final JMenuItem mi = new JMenuItem(name);
-                lnf.add(mi);
-
-                mi.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            UIManager.setLookAndFeel(info.getClassName());
-                            System.out.println(info.getClassName());
-                            SwingUtilities.updateComponentTreeUI(toUpdate);
-                        } catch (Exception ex) {
-                            mi.setEnabled(false);
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-            }
-        }
-        return lnf;
     }
 }
