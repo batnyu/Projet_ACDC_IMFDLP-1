@@ -21,6 +21,7 @@ public class ProgressBarRenderer extends JProgressBar implements TableCellRender
 
     public ProgressBarRenderer(int min, int max) {
         super(min, max);
+        setStringPainted(true);
     }
 
     public ProgressBarRenderer(int orient, int min, int max) {
