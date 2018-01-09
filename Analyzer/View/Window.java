@@ -108,8 +108,8 @@ public class Window extends JFrame {
 
         tabbedPane = new JTabbedPane();
 
-        treePanel = new TreePanel(size, analyzer, tabbedPane);
         duplicatesPanel = new DuplicatesPanel(size, analyzer);
+        treePanel = new TreePanel(size, analyzer, tabbedPane,duplicatesPanel);
 
         tabbedPane.addTab("Scan", treePanel.getPanel());
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);

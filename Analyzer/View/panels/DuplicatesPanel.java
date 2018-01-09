@@ -3,11 +3,13 @@ package Analyzer.View.panels;
 import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
+import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.tree.TreeModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class DuplicatesPanel extends ZContainer implements Observer {
+
+    private ActionsPanel actionsPanel;
 
     class FileIndex {
 
@@ -66,98 +70,108 @@ public class DuplicatesPanel extends ZContainer implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        ActionsPanel actionsPanel = (ActionsPanel) o;
-        Integer iMessage = (Integer) arg;
-        if (iMessage == ActionsPanel.START_SEARCH) {
-            getDuplicates(actionsPanel.getCurrentSelectedFilePath());
-        } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
-            System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
-            System.out.println("Weight: " + actionsPanel.getOptionsPanel().getWeightInfo().getTextField().getText());
-            System.out.println("Date: " + actionsPanel.getOptionsPanel().getDateInfo().getTextField().getText());
-            System.out.println("Date truc: " + actionsPanel.getOptionsPanel().getSelectedButtonText(actionsPanel.getOptionsPanel().getDateInfo().getButtonGroup()));
+        if (o instanceof ActionsPanel) {
+            ActionsPanel actionsPanel = (ActionsPanel) o;
+            Integer iMessage = (Integer) arg;
 
-            if (!actionsPanel.getOptionsPanel().getPattern().equals("")) {
-                filter.setPattern(actionsPanel.getOptionsPanel().getPattern());
-            }
+            if (iMessage == ActionsPanel.START_SEARCH) {
+                getDuplicates(actionsPanel.getCurrentSelectedFilePath());
+            } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
+                System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
+                System.out.println("Weight: " + actionsPanel.getOptionsPanel().getWeightInfo().getTextField().getText());
+                System.out.println("Date: " + actionsPanel.getOptionsPanel().getDateInfo().getTextField().getText());
+                System.out.println("Date truc: " + actionsPanel.getOptionsPanel().getSelectedButtonText(actionsPanel.getOptionsPanel().getDateInfo().getButtonGroup()));
 
-            if (actionsPanel.getOptionsPanel().getWeight() != 0) {
-                switch (actionsPanel.getOptionsPanel().getSymbol("weight")) {
-                    case "=":
-                        filter.weightEq(actionsPanel.getOptionsPanel().getWeight());
-                        break;
-                    case "<":
-                        filter.weightLw(actionsPanel.getOptionsPanel().getWeight());
-                        break;
-                    case ">":
-                        filter.weightGt(actionsPanel.getOptionsPanel().getWeight());
-                    default:
-                        break;
+                if (!actionsPanel.getOptionsPanel().getPattern().equals("")) {
+                    filter.setPattern(actionsPanel.getOptionsPanel().getPattern());
                 }
-            }
 
-            if (actionsPanel.getOptionsPanel().getDate() != null) {
-                switch (actionsPanel.getOptionsPanel().getSymbol("date")) {
-                    case "=":
-                        filter.dateEq(actionsPanel.getOptionsPanel().getDate());
-                        break;
-                    case "<":
-                        filter.dateLw(actionsPanel.getOptionsPanel().getDate());
-                        break;
-                    case ">":
-                        filter.dateGt(actionsPanel.getOptionsPanel().getDate());
-                    default:
-                        break;
-                }
-            }
-
-            //Reset filter when no fields completed
-            if(actionsPanel.getOptionsPanel().getPattern().equals("") && actionsPanel.getOptionsPanel().getWeight() == 0 && actionsPanel.getOptionsPanel().getDate() == null){
-                filter = new Filter();
-            }
-        } else if (iMessage == ActionsPanel.DELETING_SELECTED_FILES) {
-            if (jTable != null) {
-                for (int i = 0; i < jTable.getRowCount(); i++) {
-                    Boolean isChecked = Boolean.valueOf(jTable.getValueAt(i, 0).toString());
-
-                    if (isChecked) {
-                        System.out.println("checked " + i);
-                        filesToDelete.add(new FileIndex(new File(jTable.getValueAt(i, 2).toString()), i));
-
-                    } else {
-                        System.out.printf("Row %s is not checked \n", i);
+                if (actionsPanel.getOptionsPanel().getWeight() != 0) {
+                    switch (actionsPanel.getOptionsPanel().getSymbol("weight")) {
+                        case "=":
+                            filter.weightEq(actionsPanel.getOptionsPanel().getWeight());
+                            break;
+                        case "<":
+                            filter.weightLw(actionsPanel.getOptionsPanel().getWeight());
+                            break;
+                        case ">":
+                            filter.weightGt(actionsPanel.getOptionsPanel().getWeight());
+                        default:
+                            break;
                     }
                 }
 
-                Object[] options = {"Yes", "No"};
-                int dialogResult = JOptionPane.showOptionDialog(null,
-                        "Are you sure you want to delete these files?",
-                        "Warning",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE,
-                        null,     //do not use a custom Icon
-                        options,  //the titles of buttons
-                        options[0]); //default button title
-                if (dialogResult == JOptionPane.YES_OPTION) {
-                    for (FileIndex fileIndex : filesToDelete) {
-                        System.out.println(fileIndex.getFile().getAbsolutePath());
-                        try {
-                            FileTree.delete(fileIndex.getFile());
-                            ((DefaultTableModel) jTable.getModel()).removeRow(fileIndex.getIndex());
-                            panel.revalidate();
+                if (actionsPanel.getOptionsPanel().getDate() != null) {
+                    switch (actionsPanel.getOptionsPanel().getSymbol("date")) {
+                        case "=":
+                            filter.dateEq(actionsPanel.getOptionsPanel().getDate());
+                            break;
+                        case "<":
+                            filter.dateLw(actionsPanel.getOptionsPanel().getDate());
+                            break;
+                        case ">":
+                            filter.dateGt(actionsPanel.getOptionsPanel().getDate());
+                        default:
+                            break;
+                    }
+                }
 
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
+                //Reset filter when no fields completed
+                if (actionsPanel.getOptionsPanel().getPattern().equals("") && actionsPanel.getOptionsPanel().getWeight() == 0 && actionsPanel.getOptionsPanel().getDate() == null) {
+                    filter = new Filter();
+                }
+            } else if (iMessage == ActionsPanel.DELETING_SELECTED_FILES) {
+                if (jTable != null) {
+                    for (int i = 0; i < jTable.getRowCount(); i++) {
+                        Boolean isChecked = Boolean.valueOf(jTable.getValueAt(i, 0).toString());
+
+                        if (isChecked) {
+                            System.out.println("checked " + i);
+                            filesToDelete.add(new FileIndex(new File(jTable.getValueAt(i, 2).toString()), i));
+
+                        } else {
+                            System.out.printf("Row %s is not checked \n", i);
                         }
                     }
-                }
 
+                    Object[] options = {"Yes", "No"};
+                    int dialogResult = JOptionPane.showOptionDialog(null,
+                            "Are you sure you want to delete these files?",
+                            "Warning",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE,
+                            null,     //do not use a custom Icon
+                            options,  //the titles of buttons
+                            options[0]); //default button title
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        for (FileIndex fileIndex : filesToDelete) {
+                            System.out.println(fileIndex.getFile().getAbsolutePath());
+                            try {
+                                FileTree.delete(fileIndex.getFile());
+                                ((DefaultTableModel) jTable.getModel()).removeRow(fileIndex.getIndex());
+                                panel.revalidate();
+
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }
+
+                }
+            }
+        } else if(o instanceof TreePanel){
+            TreePanel treePanel = ((TreePanel) o);
+            Integer iMessage = (Integer) arg;
+            if (iMessage == TreePanel.ANNOUNCE_DUPLICATES) {
+                actionsPanel.setSelectedPath(treePanel.getPathToBeSelected());
+                actionsPanel.setStartButtonEnabled();
             }
         }
     }
 
     public void initPanel() {
 
-        ActionsPanel actionsPanel = new ActionsPanel(this.dim, this);
+        actionsPanel = new ActionsPanel(this.dim, this);
         this.panel.add(actionsPanel.getPanel(), BorderLayout.NORTH);
 
         mainLabel = new JLabel("Choose a directory");
@@ -262,11 +276,11 @@ public class DuplicatesPanel extends ZContainer implements Observer {
                             tableColumn.getPreferredWidth()));
 
                     // Set backgrounds color
-                    String currentHash = (String)getValueAt(row,1);
-                    if(row == 0 && column == 0){
-                        previousHash = (String)getValueAt(row,1);
-                    } else if(!previousHash.equals(currentHash)){
-                        if(currentColor == Color.white){
+                    String currentHash = (String) getValueAt(row, 1);
+                    if (row == 0 && column == 0) {
+                        previousHash = (String) getValueAt(row, 1);
+                    } else if (!previousHash.equals(currentHash)) {
+                        if (currentColor == Color.white) {
                             currentColor = Color.lightGray;
                         } else {
                             currentColor = Color.white;
@@ -296,7 +310,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         colorInt[1] = random.nextInt(128) + 127;
         colorInt[2] = random.nextInt(128) + 127;
 
-        return new Color(colorInt[0],colorInt[1],colorInt[2],255);
+        return new Color(colorInt[0], colorInt[1], colorInt[2], 255);
     }
 
 }

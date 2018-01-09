@@ -31,6 +31,8 @@ import java.util.stream.StreamSupport;
 
 public class TreePanel extends ZContainer implements Observer {
 
+    public static final Integer ANNOUNCE_DUPLICATES = 0;
+
     private boolean hash = false;
     private boolean recordInCache = false;
     private int maxDepth = Integer.MAX_VALUE;
@@ -53,8 +55,11 @@ public class TreePanel extends ZContainer implements Observer {
 
     private JTabbedPane jTabbedPane;
 
-    public TreePanel(Dimension dim, Analyzer analyzer, JTabbedPane jTabbedPane) {
+    private String pathToBeSelected;
+
+    public TreePanel(Dimension dim, Analyzer analyzer, JTabbedPane jTabbedPane, DuplicatesPanel duplicatesPanel) {
         super(dim);
+        this.addObserver((Observer) duplicatesPanel);
         this.dim = dim;
         this.analyzer = analyzer;
         this.jTabbedPane = jTabbedPane;
@@ -101,6 +106,14 @@ public class TreePanel extends ZContainer implements Observer {
 
     public void setDepthSearch(int depthSearch) {
         this.depthSearch = depthSearch;
+    }
+
+    public String getPathToBeSelected() {
+        return pathToBeSelected;
+    }
+
+    public void setPathToBeSelected(String pathToBeSelected) {
+        this.pathToBeSelected = pathToBeSelected;
     }
 
     public Outline getOutline() {
@@ -402,7 +415,7 @@ public class TreePanel extends ZContainer implements Observer {
                 TreePath treePath = outline.getLayoutCache().getPathForRow(selectedRow);
                 DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
                 FileNode fileNode = (FileNode) node.getUserObject();
-
+                setPathToBeSelected(fileNode.getAbsolutePath());
                 if (selectedRow >= 0 && selectedRow < outline.getRowCount()) {
                     if (!outline.getSelectionModel().isSelectedIndex(selectedRow)) {
                         outline.setRowSelectionInterval(selectedRow, selectedRow);
@@ -425,6 +438,12 @@ public class TreePanel extends ZContainer implements Observer {
 //        outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filter1);
 //        outline.setQuickFilter(FileRowModel.WEIGHT_COLUMN, filter1);
 
+    }
+
+    public void announceDuplicates(){
+        //Anouncing data change
+        setChanged();
+        notifyObservers(ANNOUNCE_DUPLICATES);
     }
 
     public void expandNodesUntilDepth(int depth) {

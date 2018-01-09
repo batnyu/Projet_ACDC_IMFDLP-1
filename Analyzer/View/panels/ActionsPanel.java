@@ -40,6 +40,15 @@ public class ActionsPanel extends ZContainer {
         return optionsPanel;
     }
 
+    public void setSelectedPath(String path) {
+        this.currentSelectedFilePath = path;
+        this.selectedPath.setText("<html><strong>Selected path:</strong> <i>" + currentSelectedFilePath + "</i></html>");
+    }
+
+    public void setStartButtonEnabled(){
+        this.start.setEnabled(true);
+    }
+
     public void initPanel() {
 
         fc.setCurrentDirectory(new File
