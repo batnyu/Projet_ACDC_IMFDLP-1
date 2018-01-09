@@ -57,6 +57,8 @@ public class Window extends JFrame {
         UIManager.put("ProgressBar.selectionBackground", Color.black);
         //To fix white color when hover menuitem
         UIManager.put("MenuItem.selectionForeground", Color.black);
+        UIManager.put("Table.selectionForeground", Color.black);
+
 
         this.size = new Dimension(this.getWidth(), this.getHeight());
 
