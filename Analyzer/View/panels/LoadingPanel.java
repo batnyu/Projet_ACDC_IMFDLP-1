@@ -22,9 +22,12 @@ public class LoadingPanel extends ZContainer{
         this.loadingMsg.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.panel.add(this.loadingMsg);
 
+        //JPanel jPanel = new JPanel();
         this.progressBar = new JProgressBar(0, 100);
+        this.progressBar.setPreferredSize(new Dimension(100,progressBar.getHeight()));
         this.progressBar.setIndeterminate(true);
         this.progressBar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //jPanel.add(progressBar);
         this.panel.add(progressBar);
 
     }

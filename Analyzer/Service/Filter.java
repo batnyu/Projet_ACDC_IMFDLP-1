@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +33,8 @@ public class Filter implements FileFilter, QuickFilter {
     private String name;
     private boolean directory;
     private String pattern;
+    private String selectedPath;
+    private int searchDepth;
 
     /**
      * Filter initialisation
@@ -43,6 +46,24 @@ public class Filter implements FileFilter, QuickFilter {
         date = 0;
         weight = 0;
         pattern = null;
+        selectedPath = null;
+        searchDepth = 2;
+    }
+
+    public String getSelectedPath() {
+        return selectedPath;
+    }
+
+    public void setSelectedPath(String selectedPath) {
+        this.selectedPath = selectedPath;
+    }
+
+    public int getSearchDepth() {
+        return searchDepth;
+    }
+
+    public void setSearchDepth(int searchDepth) {
+        this.searchDepth = searchDepth;
     }
 
     /**
@@ -208,16 +229,6 @@ public class Filter implements FileFilter, QuickFilter {
      */
     @Override
     public boolean accept(Object o) {
-        //System.out.println("o.getClass() = " + o.getClass());
-//        if (o instanceof Long) {
-//            System.out.println(o + " = " + weight + " ?");
-//            System.out.println((Long) o == weight);
-//            return acceptWeight((Long) o, true);
-//        } else if (o instanceof Date) {
-//            Date date = ((Date) o);
-//            System.out.println(date.toString());
-//            return acceptDate(date.getTime(), true);
-//        } else {
         boolean accept = true;
 
         DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
@@ -225,16 +236,40 @@ public class Filter implements FileFilter, QuickFilter {
 
         accept = acceptRegex(fileNode.getName(), accept);
 
+        //accept = acceptRegexParent(node, accept);
+
         accept = acceptWeight(fileNode.length(), accept);
 
         accept = acceptDate(fileNode.lastModified(), accept);
 
         return accept;
-//        }
     }
 
+    private int getPathCount(String path) {
+        return path.length() - path.replace("\\", "").length();
+    }
+
+    public boolean acceptRegexParent(DefaultMutableTreeNode node, boolean accept) {
+        System.out.println("FILTRAGE");
+        FileNode fileNode = ((FileNode) node.getUserObject());
+
+        if (fileNode.isDirectory() && (getPathCount(fileNode.getAbsolutePath()) - getPathCount(getSelectedPath()) < getSearchDepth())) {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+                FileNode fileNodeChild = ((FileNode) child.getUserObject());
+                if (fileNodeChild.isFile()) {
+                    return accept && acceptRegex(fileNodeChild.getName(), accept);
+                }
+
+            }
+        } else {
+            return accept && acceptRegex(fileNode.getName(), accept);
+        }
+        return accept;
+    }
 
     public boolean acceptRegex(String fileName, boolean accept) {
+
         if (pattern != null) {
             try {
                 Pattern regexp = Pattern.compile(pattern);
@@ -251,9 +286,6 @@ public class Filter implements FileFilter, QuickFilter {
     }
 
     public boolean acceptWeight(Long weightToAccept, boolean accept) {
-
-        System.out.println(weightToAccept + " = " + weight + " ? " + weightToAccept.equals(weight));
-
         if (weightGt && weight > 0) {
             accept = accept && weightToAccept > weight;
         } else if (weightLw && weight > 0) {
@@ -269,9 +301,6 @@ public class Filter implements FileFilter, QuickFilter {
         LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate dateLocalDate = new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        System.out.println("dateToAccept = " + dateToAcceptLocalDate);
-        System.out.println("date = " + dateLocalDate);
-        System.out.println(dateToAccept + " = " + date + " ? " + dateToAccept.equals(date));
         if (dateGt && date > 0) {
             accept = accept && dateToAcceptLocalDate.compareTo(dateLocalDate) > 0;
         } else if (dateLw && date > 0) {

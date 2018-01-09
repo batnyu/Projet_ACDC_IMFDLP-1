@@ -1,4 +1,4 @@
-package Analyzer.View.aTrier;
+package Analyzer.View.Utils;
 
 import Analyzer.Model.FileNode;
 import Analyzer.Model.FileRowModel;

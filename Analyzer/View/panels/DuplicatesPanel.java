@@ -3,17 +3,13 @@ package Analyzer.View.panels;
 import Analyzer.Model.FileTree;
 import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
-import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

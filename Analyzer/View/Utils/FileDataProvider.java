@@ -1,4 +1,4 @@
-package Analyzer.View.aTrier;
+package Analyzer.View.Utils;
 
 import Analyzer.Model.FileNode;
 import org.netbeans.swing.outline.RenderDataProvider;
@@ -32,6 +32,12 @@ public class FileDataProvider implements RenderDataProvider {
     }
 
     public javax.swing.Icon getIcon(Object o) {
+        DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+        FileNode fileNode = ((FileNode) node.getUserObject());
+
+        if (fileNode.isDirectory() && fileNode.getSize() == 0) {
+            return UIManager.getIcon("Tree.closedIcon");
+        }
         return null;
     }
 

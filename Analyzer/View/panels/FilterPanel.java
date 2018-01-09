@@ -2,6 +2,10 @@ package Analyzer.View.panels;
 
 import org.jdesktop.xswingx.JXSearchField;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,11 +20,10 @@ public class FilterPanel extends ZContainer {
 
     private ZContainer container;
 
-    private JXSearchField depthField;
+    private JSpinner depthFieldSpinner;
     private JXSearchField weightField;
     private JXSearchField patternField;
     private JXSearchField dateField;
-
 
     private int depth;
 
@@ -90,25 +93,24 @@ public class FilterPanel extends ZContainer {
 
     public void initPanel() {
 
-        depthField = new JXSearchField("Set depth of search");
-        depthField.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        depthField.setInstantSearchDelay(0);
-        depthField.setColumns(9);
+        depthFieldSpinner = new JSpinner();
+        depthFieldSpinner.setValue(2);
+        JComponent comp = depthFieldSpinner.getEditor();
+        JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
+        field.setColumns(3);
+        DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
+        depthFieldSpinner.addChangeListener(new ChangeListener() {
 
-        depthField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-                String searchText = depthField.getText();
-                if (searchText.equals("")) {
-                    setDepth(0);
-                } else {
-                    setDepth(Integer.parseInt(searchText));
-                }
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                setDepth((Integer) depthFieldSpinner.getValue());
                 //Anouncing data change
                 setChanged();
                 notifyObservers(CHANGE_DEPTH_SEARCH);
             }
         });
+
 
         patternField = new JXSearchField("Filter by regex pattern");
         patternField.setSearchMode(JXSearchField.SearchMode.INSTANT);
@@ -181,14 +183,16 @@ public class FilterPanel extends ZContainer {
         });
 
         this.panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        this.panel.add(depthField);
+        JPanel spinnerAndLabel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        spinnerAndLabel.add(new JLabel("Tree depth:"));
+        spinnerAndLabel.add(depthFieldSpinner);
+        this.panel.add(spinnerAndLabel);
         this.panel.add(patternField);
         this.panel.add(weightField);
         this.panel.add(dateField);
     }
 
     public void resetFields() {
-        depthField.setText("");
         patternField.setText("");
         weightField.setText("");
         dateField.setText("");

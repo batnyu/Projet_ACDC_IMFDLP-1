@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
 

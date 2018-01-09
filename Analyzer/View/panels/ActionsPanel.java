@@ -2,7 +2,6 @@ package Analyzer.View.panels;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

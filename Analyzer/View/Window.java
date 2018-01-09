@@ -10,6 +10,8 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -77,27 +79,15 @@ public class Window extends JFrame {
         file = new JMenu("File");
         file.setMnemonic('f');
 
-        selectDirectory = new JMenuItem("Select directory");
-        selectDirectory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+        selectDirectory = new JMenuItem("Exit");
+        selectDirectory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));
 
-/*        selectDirectory.addActionListener(new ActionListener() {
+        selectDirectory.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int returnVal = fc.showOpenDialog(container);
-                System.out.println("returnVal = " + returnVal);
-
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    System.out.println("Opening: " + file.getAbsolutePath());
-                    container.removeAll();
-                    container.add(new BottomPanel(size).getPanel(),BorderLayout.SOUTH);
-                    container.add(new TreePanel(size).getPanel(), BorderLayout.CENTER);
-                    container.revalidate();
-                } else {
-                    System.out.println("Open command cancelled by user.");
-                }
+                System.exit(1);
             }
-        });*/
+        });
 
         file.add(selectDirectory);
         //file.addSeparator();

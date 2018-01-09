@@ -4,9 +4,9 @@ import Analyzer.Model.FileNode;
 import Analyzer.Service.Analyzer;
 import Analyzer.Service.Filter;
 import Analyzer.Model.FileRowModel;
-import Analyzer.View.aTrier.ContextMenu;
-import Analyzer.View.aTrier.FileDataProvider;
-import Analyzer.View.aTrier.ProgressBarRenderer;
+import Analyzer.View.Utils.ContextMenu;
+import Analyzer.View.Utils.FileDataProvider;
+import Analyzer.View.Utils.ProgressBarRenderer;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.OutlineModel;
@@ -17,7 +17,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -25,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.*;
 import java.util.*;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -44,7 +42,6 @@ public class TreePanel extends ZContainer implements Observer {
 
     private Filter filter;
     private Filter filterAfter;
-    private int depthSearch;
 
     private JPanel mainPart;
     private JLabel mainLabel;
@@ -105,14 +102,6 @@ public class TreePanel extends ZContainer implements Observer {
         this.thread = thread;
     }
 
-    public int getDepthSearch() {
-        return depthSearch;
-    }
-
-    public void setDepthSearch(int depthSearch) {
-        this.depthSearch = depthSearch;
-    }
-
     public String getPathToBeSelected() {
         return pathToBeSelected;
     }
@@ -141,6 +130,7 @@ public class TreePanel extends ZContainer implements Observer {
             Integer iMessage = (Integer) arg;
             if (iMessage == ActionsPanel.START_SEARCH) {
                 this.filterAfter = new Filter();
+                this.filterAfter.setSelectedPath(actionsPanel.getCurrentSelectedFilePath());
                 getTree(actionsPanel.getCurrentSelectedFilePath());
             } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
                 System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
@@ -207,11 +197,20 @@ public class TreePanel extends ZContainer implements Observer {
             Integer iMessage = (Integer) arg;
 
             if (iMessage.equals(FilterPanel.CHANGE_DEPTH_SEARCH)) {
-                setDepthSearch(filterPanel.getDepth());
+                if(filterPanel.getDepth() > filterAfter.getSearchDepth()){
+                    System.out.println("EXPAND");
+                    expandNodesUntilDepth(filterAfter.getSearchDepth());
+                } else {
+                    System.out.println("COLLAPSE");
+                    collapseNodesUntilDepth(filterAfter.getSearchDepth());
+                }
+                System.out.println("filterPanel.getDepth() = " + filterPanel.getDepth());
+                System.out.println("filterAfter.getSearchDepth() = " + filterAfter.getSearchDepth());
+                System.out.println(filterPanel.getDepth() - filterAfter.getSearchDepth());
+                filterAfter.setSearchDepth(filterPanel.getDepth());
             } else if (iMessage.equals(FilterPanel.CHANGE_PATTERN_FILTER)) {
                 String pattern = filterPanel.getPattern();
                 filterAfter.setPattern(pattern);
-                expandNodesUntilDepth(getDepthSearch());
                 outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filterAfter);
             } else if (iMessage.equals(FilterPanel.CHANGE_WEIGHT_FILTER)) {
                 Long weight = filterPanel.getWeight();
@@ -234,7 +233,6 @@ public class TreePanel extends ZContainer implements Observer {
                         filterAfter.weightEq(weight);
                         break;
                 }
-                expandNodesUntilDepth(getDepthSearch());
                 outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filterAfter);
 
             } else if (iMessage.equals(FilterPanel.CHANGE_DATE_FILTER)) {
@@ -268,7 +266,6 @@ public class TreePanel extends ZContainer implements Observer {
                         filterAfter.dateEq(date);
                         break;
                 }
-                expandNodesUntilDepth(getDepthSearch());
                 outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filterAfter);
             }
         }
@@ -295,7 +292,7 @@ public class TreePanel extends ZContainer implements Observer {
     public void getTree(String path) {
 
 
-        System.out.println(getNbFiles(path));
+        //System.out.println(getNbFiles(path));
 
         //Reset textfields
         filterPanel.resetFields();
@@ -379,6 +376,7 @@ public class TreePanel extends ZContainer implements Observer {
 
         mainLabel = new JLabel("<html>Empty directory or no files corresponding to the filter.<br>" +
                 "Choose another directory please or change your filter.</html>");
+        mainLabel.setFont(arialPlain);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         mainPart.add(mainLabel, BorderLayout.CENTER);
@@ -449,17 +447,32 @@ public class TreePanel extends ZContainer implements Observer {
 
     public void expandNodesUntilDepth(int depth) {
         for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
-            System.out.println(outline.getLayoutCache().getPathForRow(i).toString());
             TreePath treePath = outline.getLayoutCache().getPathForRow(i);
             DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
             FileNode fileNode = (FileNode) node.getUserObject();
 
-            if (treePath.getPathCount() == depth) {
-                return;
-            }
+//            if (treePath.getPathCount() > depth) {
+//                return;
+//            }
 
-            if (fileNode.isDirectory()) {
+            if (fileNode.isDirectory() && treePath.getPathCount() <= depth) {
                 outline.expandPath(treePath);
+            }
+        }
+    }
+
+    public void collapseNodesUntilDepth(int depth) {
+        for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
+            TreePath treePath = outline.getLayoutCache().getPathForRow(i);
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
+            FileNode fileNode = (FileNode) node.getUserObject();
+
+//            if (treePath.getPathCount() > depth) {
+//                return;
+//            }
+
+            if (fileNode.isDirectory() && treePath.getPathCount() >= depth - 1) {
+                outline.collapsePath(treePath);
             }
         }
     }

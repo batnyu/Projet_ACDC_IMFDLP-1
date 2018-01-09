@@ -1,4 +1,4 @@
-package Analyzer.View.aTrier;
+package Analyzer.View.Utils;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
