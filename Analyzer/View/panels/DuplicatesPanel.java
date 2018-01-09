@@ -9,8 +9,11 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -165,6 +168,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
             if (iMessage == TreePanel.ANNOUNCE_DUPLICATES) {
                 actionsPanel.setSelectedPath(treePanel.getPathToBeSelected());
                 actionsPanel.setStartButtonEnabled();
+                getDuplicatesFromTree(treePanel.getNodeSelected());
             }
         }
     }
@@ -173,7 +177,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
 
         actionsPanel = new ActionsPanel(this.dim, this);
         this.panel.add(actionsPanel.getPanel(), BorderLayout.NORTH);
-
+        loadingPanel = new LoadingPanel(this.dim, "");
         mainLabel = new JLabel("Choose a directory");
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -181,17 +185,19 @@ public class DuplicatesPanel extends ZContainer implements Observer {
 
     }
 
+    public void getDuplicatesFromTree(DefaultMutableTreeNode node){
+        duplicates = analyzer.getDuplicates(node, new Filter());
+
+        resetView();
+
+        displayDuplicates(actionsPanel.getCurrentSelectedFilePath());
+    }
+
     public void getDuplicates(String path) {
+        resetView();
 
-        //Reset view
-        if (jScrollPane != null) {
-            this.panel.remove(jScrollPane);
-        }
-        if (mainLabel != null) {
-            this.panel.remove(mainLabel);
-        }
 
-        loadingPanel = new LoadingPanel(this.dim, "Searching for duplicates in " + path);
+        loadingPanel.setTextLabel("Searching for duplicates in " + path);
         this.panel.add(loadingPanel.getPanel(), BorderLayout.CENTER);
         this.panel.revalidate();
 
@@ -219,6 +225,16 @@ public class DuplicatesPanel extends ZContainer implements Observer {
 
         // Call the SwingWorker from within the Swing thread
         worker.execute();
+    }
+
+    private void resetView() {
+        //Reset view
+        if (jScrollPane != null) {
+            this.panel.remove(jScrollPane);
+        }
+        if (mainLabel != null) {
+            this.panel.remove(mainLabel);
+        }
     }
 
     public void displayDuplicates(String path) {

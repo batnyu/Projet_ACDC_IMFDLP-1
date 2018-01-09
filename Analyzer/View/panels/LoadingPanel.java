@@ -28,4 +28,8 @@ public class LoadingPanel extends ZContainer{
         this.panel.add(progressBar);
 
     }
+
+    public void setTextLabel(String label){
+        this.loadingMsg.setText(label);
+    }
 }

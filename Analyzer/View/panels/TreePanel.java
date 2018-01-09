@@ -17,14 +17,15 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.*;
-import java.util.Date;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -38,7 +39,8 @@ public class TreePanel extends ZContainer implements Observer {
     private int maxDepth = Integer.MAX_VALUE;
     private boolean thread = false;
 
-    Analyzer analyzer;
+    private Analyzer analyzer;
+
     private Filter filter;
     private Filter filterAfter;
     private int depthSearch;
@@ -56,6 +58,8 @@ public class TreePanel extends ZContainer implements Observer {
     private JTabbedPane jTabbedPane;
 
     private String pathToBeSelected;
+
+    private DefaultMutableTreeNode nodeSelected;
 
     public TreePanel(Dimension dim, Analyzer analyzer, JTabbedPane jTabbedPane, DuplicatesPanel duplicatesPanel) {
         super(dim);
@@ -114,6 +118,14 @@ public class TreePanel extends ZContainer implements Observer {
 
     public void setPathToBeSelected(String pathToBeSelected) {
         this.pathToBeSelected = pathToBeSelected;
+    }
+
+    public DefaultMutableTreeNode getNodeSelected() {
+        return nodeSelected;
+    }
+
+    public void setNodeSelected(DefaultMutableTreeNode nodeSelected) {
+        this.nodeSelected = nodeSelected;
     }
 
     public Outline getOutline() {
@@ -411,6 +423,7 @@ public class TreePanel extends ZContainer implements Observer {
                 DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
                 FileNode fileNode = (FileNode) node.getUserObject();
                 setPathToBeSelected(fileNode.getAbsolutePath());
+                setNodeSelected(node);
                 if (selectedRow >= 0 && selectedRow < outline.getRowCount()) {
                     if (!outline.getSelectionModel().isSelectedIndex(selectedRow)) {
                         outline.setRowSelectionInterval(selectedRow, selectedRow);
@@ -425,14 +438,6 @@ public class TreePanel extends ZContainer implements Observer {
                 contextMenu.show(e.getComponent(), e.getX(), e.getY());
             }
         });
-
-        //TEST QUICK FILTER PLUSIEURS
-//        Filter filter1 = new Filter();
-//        filter1.setPattern("html");
-//        filter1.weightLw(6000);
-//        outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filter1);
-//        outline.setQuickFilter(FileRowModel.WEIGHT_COLUMN, filter1);
-
     }
 
     public void announceDuplicates(){
@@ -459,7 +464,19 @@ public class TreePanel extends ZContainer implements Observer {
     }
 
     public long getNbFiles(String path){
-        return 0;
+                        long count = 0;
+                Path pathReal = Paths.get(path);
+                try {
+                    count = toStream(Files.newDirectoryStream(pathReal))
+                            .parallel()
+                            .flatMap(new FN<>()::apply)
+                            .count();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                System.out.println("count: " + count);
+                return count;
     }
 
     static class FN<T extends Path> implements Function<T, Stream<T>> {
