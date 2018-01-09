@@ -1,20 +1,15 @@
-# Il me faut de la place
+# Partie 2 - Il me faut de la place 
+>Projet ACDC - Fil A1 - Baptiste Vrignaud
+>
+>Back-end de Valentin Bourcier
 
-## Phase 1
+[Lien vers le compte-rendu de la phase 2](/CompteRendu_Partie2/designFrontend.md)
 
-Pour cette première phase du projet, toute la partie fonctionnelle est implémentée.
-Elle offre les services suivants:
+## Contexte du projet
 
-* Création d'une arborescence, avec option de hashage des fichiers à la construction, et option de mise en cache des fichiers.
-* Récupération d'informations sur les différents fichiers et dossiers de l'arborescence, taille, date de modification...
-* Collecte et suppression des doublons.
-* Filtrage des fichiers, selon plusieurs critères, taille, date de modification, nom de fichier...
-* Ecoute des changements sur les fichiers du système. Nécessite l'activation de l'option de mise en cache des fichiers à la création de l'arbre.
-   Ainsi que l'implémentation de la classe FileTreeListener.
+Ce projet a pour but de développer une application multi-plateforme en java capable d'analyser un système de fichiers, 
+montrer ce qui prend le plus de place et trouver les doublons.
 
-Code utilisé en phase 2 par Baptiste Vrignaud
+## Fonctionnalités présentes dans la phase 2
 
-## Rapport de phase un disponible via le lien suivant [Rapport](/Compte-rendu/designBackground.md)
-
-Valentin Bourcier
-Projet ACDC - Fil A1
+Pour cette deuxième phase du projet, la partie IHM a été implémentée.
