@@ -386,9 +386,6 @@ public class TreePanel extends ZContainer implements Observer {
     }
 
     public void displayTree() {
-//        this.panel.remove(this.loadingPanel.getPanel());
-//        this.panel.revalidate();
-//        this.panel.repaint();
         mainPart.add(filterPanel.getPanel(), BorderLayout.NORTH);
         mainPart.remove(this.loadingPanel.getPanel());
         mainPart.revalidate();
@@ -403,8 +400,6 @@ public class TreePanel extends ZContainer implements Observer {
         outline.setRenderDataProvider(new FileDataProvider());
         outline.setRootVisible(true);
         outline.setModel(mdl);
-
-        //expandNodesUntilDepth(6);
 
         ProgressBarRenderer pbr = new ProgressBarRenderer(0, 100);
         //pbr.setForeground(new Color(179, 255, 165));
@@ -446,35 +441,57 @@ public class TreePanel extends ZContainer implements Observer {
     }
 
     public void expandNodesUntilDepth(int depth) {
-        for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
-            TreePath treePath = outline.getLayoutCache().getPathForRow(i);
-            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
-            FileNode fileNode = (FileNode) node.getUserObject();
 
-//            if (treePath.getPathCount() > depth) {
-//                return;
-//            }
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            public Void doInBackground() {
+                for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
+                    TreePath treePath = outline.getLayoutCache().getPathForRow(i);
+                    DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
+                    FileNode fileNode = (FileNode) node.getUserObject();
 
-            if (fileNode.isDirectory() && treePath.getPathCount() <= depth) {
-                outline.expandPath(treePath);
+                    if (fileNode.isDirectory() && treePath.getPathCount() <= depth) {
+                        outline.expandPath(treePath);
+                    }
+                }
+                return null;
             }
-        }
+
+            @Override
+            public void done() {
+            }
+        };
+
+        worker.execute();
+
     }
 
     public void collapseNodesUntilDepth(int depth) {
-        for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
-            TreePath treePath = outline.getLayoutCache().getPathForRow(i);
-            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
-            FileNode fileNode = (FileNode) node.getUserObject();
 
-//            if (treePath.getPathCount() > depth) {
-//                return;
-//            }
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            public Void doInBackground() {
+                for (int i = 0; i < outline.getLayoutCache().getRowCount(); i++) {
+                    TreePath treePath = outline.getLayoutCache().getPathForRow(i);
+                    DefaultMutableTreeNode node = ((DefaultMutableTreeNode) treePath.getLastPathComponent());
+                    FileNode fileNode = (FileNode) node.getUserObject();
 
-            if (fileNode.isDirectory() && treePath.getPathCount() >= depth - 1) {
-                outline.collapsePath(treePath);
+
+                    if (fileNode.isDirectory() && treePath.getPathCount() >= depth - 1) {
+                        outline.collapsePath(treePath);
+                    }
+                }
+                return null;
             }
-        }
+
+            @Override
+            public void done() {
+            }
+        };
+
+        worker.execute();
+
+
     }
 
     public long getNbFiles(String path){
