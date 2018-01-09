@@ -387,10 +387,6 @@ public class TreePanel extends ZContainer implements Observer {
         OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeModel,
                 new FileRowModel(), false, "File System");
 
-        System.out.println("mdl.getLayout().getClass() = " + mdl.getLayout().getClass());
-        //
-        //mdl.getTreePathSupport().expandPath(mdl.getTreePathSupport().isExpanded());
-
         outline = new Outline();
         outline.setRenderDataProvider(new FileDataProvider());
         outline.setRootVisible(true);
@@ -400,7 +396,6 @@ public class TreePanel extends ZContainer implements Observer {
         //expandNodesUntilDepth(6);
 
         ProgressBarRenderer pbr = new ProgressBarRenderer(0, 100);
-        pbr.setStringPainted(true);
         //pbr.setForeground(new Color(179, 255, 165));
         outline.setDefaultRenderer(Float.class, pbr);
 
