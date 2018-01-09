@@ -4,7 +4,7 @@ Baptiste Vrignaud
 
 ## 1 - Utilisation du jar
 
-Double-cliquez sur le jar Projet_ACDC_IMFDLP-1
+Double-cliquez sur le jar Projet_ACDC_IMFDLP-1 disponible dans le dossier /out/artifacts/Projet_ACDC_IMFDLP_1_jar
         
 ## 2 - Organisation du projet
 
@@ -67,3 +67,12 @@ Ce panel affiche les erreurs parvenus pendant l'exécution du parcours du systè
 
 J'ai testé pleins de solutions disponible sur le net sans succès (JTreeTable, swingx) jusqu'à ce que je tombe par hasard sur le composant Outline
 qui faisait tous ce dont j'avais besoin facilement. J'ai juste eu à fournir un treemodel et un fichier spécifiant les colonnes voulues.
+
+## 4 - Points positifs
+
+L'interface est claire et permet de voir quels fichiers prennent le plus de place. On peut filtrer les fichiers .avi dans un ordre anté-chronologique.
+
+## 5 - Points négatifs
+
+Je n'ai pas eu le temps d'implémenter de la persistence de données pour les paramètres. Ni d'implémenter une barre de progression pendant la construction de l'arbre
+ou la recherche des doublons. J'aurais aussi voulu mettre à jour directement mon arbre à la construction. Mais on y a pas vraiment pensé dans la partie Back-end.
