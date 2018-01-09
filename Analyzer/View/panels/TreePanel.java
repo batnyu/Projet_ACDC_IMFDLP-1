@@ -33,6 +33,7 @@ import java.util.stream.StreamSupport;
 public class TreePanel extends ZContainer implements Observer {
 
     public static final Integer ANNOUNCE_DUPLICATES = 0;
+    public static final String firstStr = "Choose a directory, select your options and click start!";
 
     private boolean hash = false;
     private boolean recordInCache = false;
@@ -281,7 +282,7 @@ public class TreePanel extends ZContainer implements Observer {
 
         mainPart = new JPanel(new BorderLayout());
 
-        mainLabel = new JLabel("Choose a directory");
+        mainLabel = new JLabel(firstStr);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         mainPart.add(mainLabel, BorderLayout.CENTER);

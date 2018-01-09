@@ -178,7 +178,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         actionsPanel = new ActionsPanel(this.dim, this);
         this.panel.add(actionsPanel.getPanel(), BorderLayout.NORTH);
         loadingPanel = new LoadingPanel(this.dim, "");
-        mainLabel = new JLabel("Choose a directory");
+        mainLabel = new JLabel(TreePanel.firstStr);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         this.panel.add(mainLabel, BorderLayout.CENTER);

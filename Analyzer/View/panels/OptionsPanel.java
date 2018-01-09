@@ -103,7 +103,7 @@ public class OptionsPanel extends ZContainer {
         if (!this.getWeightInfo().getTextField().getText().equals("")) {
             return Long.parseLong(this.getWeightInfo().getTextField().getText());
         } else {
-            return 0;
+            return -1;
         }
     }
 
@@ -188,7 +188,7 @@ public class OptionsPanel extends ZContainer {
             pos  = posTreePanel.clone();
 
         }
-        patternInfo = addLabelAndTextFieldAndRadioButtons("Regex pattern:", pos[0], panel, "condition");
+        patternInfo = addLabelAndTextFieldAndRadioButtons("Regex pattern:", pos[0], panel, "no");
         weightInfo = addLabelAndTextFieldAndRadioButtons("Weight:", pos[1], panel, "condition");
         dateInfo = addLabelAndTextFieldAndRadioButtons("Date (DD/MM/YYYY):", pos[2], panel, "condition");
     }
