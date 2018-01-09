@@ -34,6 +34,7 @@ public class ErrorsPanel extends ZContainer {
         this.panel.setPreferredSize(new Dimension(800,350));
 
         mainLabel = new JLabel("No errors!");
+        mainLabel.setFont(arialBold);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         this.panel.add(mainLabel, BorderLayout.CENTER);

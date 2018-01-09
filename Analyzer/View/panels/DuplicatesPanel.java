@@ -179,6 +179,7 @@ public class DuplicatesPanel extends ZContainer implements Observer {
         this.panel.add(actionsPanel.getPanel(), BorderLayout.NORTH);
         loadingPanel = new LoadingPanel(this.dim, "");
         mainLabel = new JLabel(TreePanel.firstStr);
+        mainLabel.setFont(arialPlain);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         this.panel.add(mainLabel, BorderLayout.CENTER);

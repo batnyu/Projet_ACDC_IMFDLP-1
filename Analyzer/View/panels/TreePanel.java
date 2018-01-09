@@ -283,6 +283,7 @@ public class TreePanel extends ZContainer implements Observer {
         mainPart = new JPanel(new BorderLayout());
 
         mainLabel = new JLabel(firstStr);
+        mainLabel.setFont(arialPlain);
         mainLabel.setVerticalAlignment(JLabel.CENTER);
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         mainPart.add(mainLabel, BorderLayout.CENTER);
@@ -404,7 +405,6 @@ public class TreePanel extends ZContainer implements Observer {
         outline.setRenderDataProvider(new FileDataProvider());
         outline.setRootVisible(true);
         outline.setModel(mdl);
-        //outline.setPopupUsedFromTheCorner(true);
 
         //expandNodesUntilDepth(6);
 
