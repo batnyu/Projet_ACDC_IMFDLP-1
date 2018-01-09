@@ -222,7 +222,7 @@ public class TreePanel extends ZContainer implements Observer {
                         break;
                 }
                 expandNodesUntilDepth(getDepthSearch());
-                outline.setQuickFilter(FileRowModel.WEIGHT_COLUMN, filterAfter);
+                outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filterAfter);
 
             } else if (iMessage.equals(FilterPanel.CHANGE_DATE_FILTER)) {
                 Date date = null;
@@ -256,7 +256,7 @@ public class TreePanel extends ZContainer implements Observer {
                         break;
                 }
                 expandNodesUntilDepth(getDepthSearch());
-                outline.setQuickFilter(FileRowModel.DATE_COLUMN, filterAfter);
+                outline.setQuickFilter(FileRowModel.FILE_SYSTEM_COLUMN, filterAfter);
             }
         }
 

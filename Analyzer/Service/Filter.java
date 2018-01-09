@@ -209,20 +209,28 @@ public class Filter implements FileFilter, QuickFilter {
     @Override
     public boolean accept(Object o) {
         //System.out.println("o.getClass() = " + o.getClass());
-        if (o instanceof Long) {
-            System.out.println(o + " = " + weight + " ?");
-            System.out.println((Long) o == weight);
-            return acceptWeight((Long) o, true);
-        } else if (o instanceof Date) {
-            Date date = ((Date) o);
-            System.out.println(date.toString());
-            return acceptDate(date.getTime(), true);
-        } else {
-            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
-            FileNode fileNode = ((FileNode) node.getUserObject());
-            System.out.println(fileNode.toString());
-            return acceptRegex(fileNode.getName(), true);
-        }
+//        if (o instanceof Long) {
+//            System.out.println(o + " = " + weight + " ?");
+//            System.out.println((Long) o == weight);
+//            return acceptWeight((Long) o, true);
+//        } else if (o instanceof Date) {
+//            Date date = ((Date) o);
+//            System.out.println(date.toString());
+//            return acceptDate(date.getTime(), true);
+//        } else {
+        boolean accept = true;
+
+        DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
+        FileNode fileNode = ((FileNode) node.getUserObject());
+
+        accept = acceptRegex(fileNode.getName(), accept);
+
+        accept = acceptWeight(fileNode.length(), accept);
+
+        accept = acceptDate(fileNode.lastModified(), accept);
+
+        return accept;
+//        }
     }
 
 
@@ -259,7 +267,7 @@ public class Filter implements FileFilter, QuickFilter {
     public boolean acceptDate(Long dateToAccept, boolean accept) {
         Date dateToAcceptDate = new Date(dateToAccept);
         LocalDate dateToAcceptLocalDate = dateToAcceptDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate dateLocalDate= new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate dateLocalDate = new Date(date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         System.out.println("dateToAccept = " + dateToAcceptLocalDate);
         System.out.println("date = " + dateLocalDate);
