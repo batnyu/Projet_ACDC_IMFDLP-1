@@ -4,7 +4,7 @@ Baptiste Vrignaud
 
 ## 1 - Utilisation du jar
 
-Double-cliquez sur le jar Projet_ACDC_IMFDLP-1 disponible dans le dossier /out/artifacts/Projet_ACDC_IMFDLP_1_jar
+Double-cliquez sur le jar Projet_ACDC_IMFDLP-1 disponible dans le dossier /app
         
 ## 2 - Organisation du projet
 
