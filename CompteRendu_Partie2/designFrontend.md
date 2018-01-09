@@ -60,3 +60,10 @@ Ce panel affiche les doublons dans un JTable. On peut en sélectionner et les su
 ![ErrorPanel](images/errors.PNG).
 
 Ce panel affiche les erreurs parvenus pendant l'exécution du parcours du système de fichiers. Il est accessible via un bouton en bas de l'interface.
+
+## 3 - Difficultés rencontrés
+
+* **Composant avec un JTree et un JTable**
+
+J'ai testé pleins de solutions disponible sur le net sans succès (JTreeTable, swingx) jusqu'à ce que je tombe par hasard sur le composant Outline
+qui faisait tous ce dont j'avais besoin facilement. J'ai juste eu à fournir un treemodel et un fichier spécifiant les colonnes voulues.
