@@ -198,7 +198,7 @@ public class FileTree extends Analyzer {
         while (en.hasMoreElements()) {
             DefaultMutableTreeNode next = en.nextElement();
             FileNode file = (FileNode) next.getUserObject();
-            if (file.isDirectory()) {
+            if (file.isDirectory() || next.getChildCount() != 0) {
                 InfoNode infoNode = getInfoNode(next);
                 file.setSize(infoNode.getSize());
                 file.setNumberFiles(infoNode.getNumberFiles());
