@@ -69,19 +69,22 @@ public class FileRowModel implements RowModel {
         switch (column) {
             case 0:
                 if(fileNode.isDirectory()){
-                    return "<html><strong>" + fileNode.getSize() + "</strong></html>";
+                    //return "<html><strong>" + fileNode.getSize() + "</strong></html>";
+                    return fileNode.getSize();
                 } else {
                     return fileNode.getSize();
                 }
             case 1:
                 if(fileNode.isDirectory()){
-                    return "<html><strong>" + fileNode.getNumberFiles() + "</strong></html>";
+                    //return "<html><strong>" + fileNode.getNumberFiles() + "</strong></html>";
+                    return fileNode.getNumberFiles();
                 } else {
                     return fileNode.getNumberFiles();
                 }
             case 2:
                 if(fileNode.isDirectory()){
-                    return "<html><strong>" + fileNode.getNumberFolders() + "</strong></html>";
+                    //return "<html><strong>" + fileNode.getNumberFolders() + "</strong></html>";
+                    return fileNode.getNumberFolders();
                 } else {
                     return fileNode.getNumberFolders();
                 }
