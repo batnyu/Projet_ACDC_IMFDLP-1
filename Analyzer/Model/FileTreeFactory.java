@@ -39,7 +39,7 @@ public class FileTreeFactory implements FileVisitor<Path>, Callable {
     private boolean thread = true;
     private boolean filtered = false;
 
-    private Deque<Long> dirSizeStack = new ArrayDeque<>();
+    //private Deque<Long> dirSizeStack = new ArrayDeque<>();
 
     /**
      * Factory initializer

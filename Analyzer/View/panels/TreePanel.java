@@ -6,6 +6,7 @@ import Analyzer.Service.Filter;
 import Analyzer.Model.FileRowModel;
 import Analyzer.View.Utils.ContextMenu;
 import Analyzer.View.Utils.FileDataProvider;
+import Analyzer.View.Utils.FileTreeCellRenderer;
 import Analyzer.View.Utils.ProgressBarRenderer;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.netbeans.swing.outline.Outline;
@@ -132,6 +133,9 @@ public class TreePanel extends ZContainer implements Observer {
                 this.filterAfter = new Filter();
                 this.filterAfter.setSelectedPath(actionsPanel.getCurrentSelectedFilePath());
                 getTree(actionsPanel.getCurrentSelectedFilePath());
+            } else if(iMessage == ActionsPanel.STOP_SEARCH){
+                stopTreeWorker();
+                mainPart.add(mainLabel, BorderLayout.CENTER);
             } else if (iMessage == ActionsPanel.CHANGE_OPTIONS) {
                 System.out.println("pattern: " + actionsPanel.getOptionsPanel().getPattern());
                 System.out.println("Weight: " + actionsPanel.getOptionsPanel().getWeightInfo().getTextField().getText());
@@ -297,20 +301,10 @@ public class TreePanel extends ZContainer implements Observer {
         //Reset textfields
         filterPanel.resetFields();
 
-        if (getTreeWorker != null) {
-            getTreeWorker.cancel(true);
-            getTreeWorker = null;
-        }
+        stopTreeWorker();
 
-        //Reset view
-        if (jScrollPane != null) {
-            mainPart.remove(jScrollPane);
-        }
         if (mainLabel != null) {
             mainPart.remove(mainLabel);
-        }
-        if (filterPanel != null) {
-            mainPart.remove(filterPanel.getPanel());
         }
 
         loadingPanel = new LoadingPanel(this.dim, "Building the tree rooted by " + path);
@@ -371,6 +365,23 @@ public class TreePanel extends ZContainer implements Observer {
         getTreeWorker.execute();
     }
 
+    private void stopTreeWorker() {
+        //Stop worker
+        if (getTreeWorker != null) {
+            getTreeWorker.cancel(true);
+            getTreeWorker = null;
+        }
+
+        //Reset view
+        if (jScrollPane != null) {
+            mainPart.remove(jScrollPane);
+        }
+
+        if (filterPanel != null) {
+            mainPart.remove(filterPanel.getPanel());
+        }
+    }
+
     public void displayNoFiles() {
         mainPart.remove(this.loadingPanel.getPanel());
 
@@ -398,6 +409,7 @@ public class TreePanel extends ZContainer implements Observer {
 
         outline = new Outline();
         outline.setRenderDataProvider(new FileDataProvider());
+        //outline.setDefaultRenderer(Long.class,new FileTreeCellRenderer());
         outline.setRootVisible(true);
         outline.setModel(mdl);
 

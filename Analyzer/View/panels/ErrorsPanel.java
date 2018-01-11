@@ -30,7 +30,7 @@ public class ErrorsPanel extends ZContainer {
 
     public void initPanel() {
 
-        this.panel.setPreferredSize(new Dimension(800,350));
+        this.panel.setPreferredSize(new Dimension(800, 350));
 
         mainLabel = new JLabel("No errors!");
         mainLabel.setFont(arialBold);
@@ -38,7 +38,7 @@ public class ErrorsPanel extends ZContainer {
         mainLabel.setHorizontalAlignment(JLabel.CENTER);
         this.panel.add(mainLabel, BorderLayout.CENTER);
 
-        if(!getErrors().isEmpty()){
+        if (!getErrors().isEmpty()) {
             this.panel.remove(mainLabel);
 
             Object[] columnNames = {"Exception", "Path"};
@@ -57,11 +57,15 @@ public class ErrorsPanel extends ZContainer {
             };
 
             for (String error : getErrors()) {
-                String[] split = error.split(": ",2);
+                String[] split = error.split(": ", 2);
 
                 Vector row = new Vector();
                 row.add(split[0]);
-                row.add(split[1]);
+                if (split.length == 2) {
+                    row.add(split[1]);
+                } else {
+                    row.add("");
+                }
 
                 model.addRow(row);
             }

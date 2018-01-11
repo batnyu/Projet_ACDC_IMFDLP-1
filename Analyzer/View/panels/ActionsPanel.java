@@ -13,6 +13,7 @@ public class ActionsPanel extends ZContainer {
     public static final Integer START_SEARCH = 0;
     public static final Integer CHANGE_OPTIONS = 1;
     public static final Integer DELETING_SELECTED_FILES = 2;
+    public static final Integer STOP_SEARCH = 3;
 
     private final JFileChooser fc;
 
@@ -22,6 +23,7 @@ public class ActionsPanel extends ZContainer {
     private JPanel go;
     private JLabel selectedPath;
     private JButton start;
+    private JButton stop;
 
     public ActionsPanel(Dimension dim, ZContainer container) {
         super(dim);
@@ -126,10 +128,24 @@ public class ActionsPanel extends ZContainer {
                 //Anouncing data change
                 setChanged();
                 notifyObservers(START_SEARCH);
+                stop.setEnabled(true);
             }
         });
         start.setEnabled(false);
         go.add(start);
+
+        stop = new JButton("Stop");
+        stop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //Anouncing data change
+                setChanged();
+                notifyObservers(STOP_SEARCH);
+                stop.setEnabled(false);
+            }
+        });
+        stop.setEnabled(false);
+        go.add(stop);
 
         this.panel.add(go, BorderLayout.CENTER);
     }
