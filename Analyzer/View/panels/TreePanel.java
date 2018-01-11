@@ -6,7 +6,7 @@ import Analyzer.Service.Filter;
 import Analyzer.Model.FileRowModel;
 import Analyzer.View.Utils.ContextMenu;
 import Analyzer.View.Utils.FileDataProvider;
-import Analyzer.View.Utils.FileTreeCellRenderer;
+//import Analyzer.View.Utils.FileTreeCellRenderer;
 import Analyzer.View.Utils.ProgressBarRenderer;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.netbeans.swing.outline.Outline;

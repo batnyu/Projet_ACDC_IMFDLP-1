@@ -234,9 +234,11 @@ public class Filter implements FileFilter, QuickFilter {
         DefaultMutableTreeNode node = ((DefaultMutableTreeNode) o);
         FileNode fileNode = ((FileNode) node.getUserObject());
 
-        accept = acceptRegex(fileNode.getName(), accept);
-
         //accept = acceptRegexParent(node, accept);
+
+        //accept = acceptParent(node, accept);
+
+        accept = acceptRegex(fileNode.getName(), accept);
 
         accept = acceptWeight(fileNode.length(), accept);
 
@@ -259,6 +261,27 @@ public class Filter implements FileFilter, QuickFilter {
                 FileNode fileNodeChild = ((FileNode) child.getUserObject());
                 if (fileNodeChild.isFile()) {
                     return accept && acceptRegex(fileNodeChild.getName(), accept);
+                }
+
+            }
+        } else {
+            return accept && acceptRegex(fileNode.getName(), accept);
+        }
+        return accept;
+    }
+
+    public boolean acceptParent(DefaultMutableTreeNode node, boolean accept) {
+        System.out.println("FILTRAGE");
+        FileNode fileNode = ((FileNode) node.getUserObject());
+
+        if (fileNode.isDirectory() && (getPathCount(fileNode.getAbsolutePath()) - getPathCount(getSelectedPath()) < getSearchDepth())) {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+                FileNode fileNodeChild = ((FileNode) child.getUserObject());
+                if (fileNodeChild.isFile()) {
+                    accept = acceptRegex(fileNodeChild.getName(), accept);
+                    accept = acceptWeight(fileNode.length(), accept);
+                    accept = acceptDate(fileNode.lastModified(), accept);
                 }
 
             }
