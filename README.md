@@ -10,6 +10,10 @@
 Ce projet a pour but de développer une application multi-plateforme en java capable d'analyser un système de fichiers, 
 montrer ce qui prend le plus de place et trouver les doublons.
 
+## How to use
+
+Launch the Projet_ACDC_IMFDLP-1.jar in the folder /app.
+
 ## Fonctionnalités présentes dans la phase 2
 
 Pour cette deuxième phase du projet, la partie IHM a été implémentée.
